@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1a22">
+<title>ADLI v0.7 — العقل السيادي</title>
+<style>
+:root{--bg:#0e1a22;--s1:#152630;--s2:#1d3340;--ln:#2e4856;--tx:#e8f0eb;--mu:#8ea7ae;--ac:#d9a63e;--ok:#4fcfb0;--bad:#ff7b66;--wr:#f1c85c;--ub:#1f3a49}
+@media (prefers-color-scheme:light){:root{--bg:#f5f8f7;--s1:#fff;--s2:#e8efed;--ln:#cdd9d6;--tx:#14262e;--mu:#5a7178;--ac:#b27d12;--ok:#0f8a6c;--bad:#c4412c;--wr:#8f6a00;--ub:#dfece8}}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font:16px/1.75 "Noto Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.top{display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top) + 4px) 8px 4px;border-bottom:1px solid var(--ln)}
+.ttl{font-size:18px;font-weight:700;letter-spacing:1px;color:var(--ac)}
+.ico{background:none;border:0;color:var(--tx);font-size:22px;width:42px;height:42px;border-radius:12px;font-family:inherit}
+.ico:active{background:var(--s2)}
+.grow{flex:1}
+#scroller{flex:1;overflow-y:auto}
+.col{max-width:740px;margin:0 auto;padding:0 14px}
+#chat{padding-top:6px;padding-bottom:12px}
+.m{margin:16px 0}
+.m.u{display:flex;justify-content:flex-end}
+.m.u .b{background:var(--ub);border-radius:18px 18px 18px 4px;padding:8px 14px;max-width:88%;white-space:pre-wrap;word-break:break-word}
+.m.a .t{white-space:pre-wrap;word-break:break-word}
+.tags{margin-top:6px}.tags span{display:inline-block;font-size:11px;color:var(--mu);border:1px solid var(--ln);border-radius:99px;padding:0 8px;margin-inline-end:4px}
+.why{margin-top:6px;font-size:13px;color:var(--mu)}
+.why summary{cursor:pointer;list-style:none;font-size:12px}
+.why summary::-webkit-details-marker{display:none}
+.steps{margin:6px 0;font:12px/1.55 ui-monospace,Consolas,monospace}
+.steps .ln{padding:1px 0;border-bottom:1px solid var(--ln)}
+.ln.ok{color:var(--ok)}.ln.bad{color:var(--bad)}.ln.warn{color:var(--wr)}
+.rcpt{border:1px dashed var(--ac);border-radius:8px;padding:5px 8px;margin-top:6px;font-size:12px;color:var(--ac);white-space:normal}
+.dots i{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:var(--ac);animation:bl 1.1s infinite ease-in-out}
+.dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+@keyframes bl{0%,80%,100%{opacity:.25}40%{opacity:1}}
+#empty{text-align:center;padding:11vh 12px 0}
+#empty h1{font-size:26px;font-weight:700;margin-bottom:4px}
+#empty p{color:var(--mu)}
+.sug{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+.sug button{background:var(--s1);color:var(--tx);border:1px solid var(--ln);border-radius:14px;padding:8px 12px;font:inherit;font-size:14px}
+.comp{padding:6px 0 calc(env(safe-area-inset-bottom) + 8px)}
+.box{display:flex;align-items:flex-end;gap:6px;background:var(--s1);border:1px solid var(--ln);border-radius:26px;padding:5px 6px 5px 5px}
+.box textarea{border:0;background:none;color:var(--tx);resize:none;max-height:140px;padding:8px 12px;font:inherit;outline:0;width:100%;line-height:1.6}
+.send{width:40px;height:40px;border-radius:50%;border:0;background:var(--ac);color:#241a05;font-size:20px;font-weight:700;flex:none}
+.send:disabled{opacity:.4}
+.hint{text-align:center;color:var(--mu);font-size:11px;margin-top:6px}
+.ban{background:var(--s1);border:1px solid var(--ac);border-radius:14px;padding:8px 12px;margin-bottom:8px;font-size:13px}
+.ban.ok{border-color:var(--ok)}
+.brain{background:var(--s1);border:1px solid var(--ln);border-radius:16px;padding:10px 12px;margin-bottom:8px}
+.brain.ok{border-color:var(--ok)}.brain.off{border-style:dashed}.brain.bad{border-color:var(--bad)}
+.b-row{display:flex;gap:10px;align-items:flex-start}.b-ic{font-size:22px;line-height:1.3}.b-tx{flex:1;min-width:0;font-size:14px}.b-tx b{font-size:14px}
+.bar{height:8px;background:var(--s2);border-radius:99px;overflow:hidden;margin-top:8px}.bar>i{display:block;height:100%;width:0;background:var(--ac);transition:width .25s}
+#scrim{position:fixed;inset:0;background:#0009;z-index:15;display:none}
+#scrim.on{display:block}
+#side{position:fixed;top:0;bottom:0;inset-inline-start:0;width:min(86vw,320px);background:var(--s1);border-inline-end:1px solid var(--ln);transform:translateX(105%);transition:transform .2s;z-index:20;display:flex;flex-direction:column;gap:8px;padding:calc(env(safe-area-inset-top) + 8px) 12px 12px}
+#side.open{transform:none}
+.side-h{display:flex;align-items:center;justify-content:space-between}
+#sesList{flex:1;overflow-y:auto}
+.ses-i{display:block;width:100%;text-align:right;background:none;border:0;color:var(--tx);font:inherit;font-size:14px;padding:8px 10px;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ses-i.on,.ses-i:active{background:var(--s2)}
+.menu button{display:block;width:100%;text-align:right;background:none;border:0;color:var(--tx);font:inherit;font-size:15px;padding:9px 10px;border-radius:10px}
+.menu button:active{background:var(--s2)}
+.side-f{font-size:12px;color:var(--mu)}
+#ovl{position:fixed;inset:0;background:var(--bg);z-index:30;display:flex;flex-direction:column}
+#ovl[hidden]{display:none}
+.ovl-top{display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top) + 4px) 8px 4px;border-bottom:1px solid var(--ln)}
+.ovl-body{flex:1;overflow-y:auto;padding:10px}
+#ovl section{display:none}#ovl section.on{display:block}
+.row,.modes{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.row{margin:6px 0}.sm{font-size:12px}
+.chip{border:1px solid var(--ln);background:var(--s2);color:var(--tx);border-radius:99px;padding:0 10px;font-size:12px;line-height:24px;font-family:inherit}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.wr{color:var(--wr)}.mu{color:var(--mu)}
+.chip.ok{border-color:var(--ok)}.chip.bad{border-color:var(--bad)}.chip.wr{border-color:var(--wr)}
+.modes button{flex:1 1 calc(33% - 6px);background:var(--s2);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:5px;font:inherit;font-size:13px}
+.modes button.on{background:var(--ac);color:#241a05;border-color:var(--ac);font-weight:700}
+.card{background:var(--s1);border:1px solid var(--ln);border-radius:10px;padding:10px;margin-bottom:10px}
+h3{font-size:15px;margin-bottom:6px}
+input,textarea,select{background:var(--s2);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:8px;font:inherit;width:100%;min-width:0}
+input[type=checkbox]{width:auto}textarea{resize:vertical}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}
+.btn{background:var(--ac);color:#241a05;border:0;border-radius:10px;padding:8px 14px;font:inherit;font-weight:700}
+.btn.wide{width:100%}
+.btn.ghost{background:var(--s2);color:var(--tx);border:1px solid var(--ln);font-weight:400}
+.btn.bad{background:var(--bad);color:#2a0d07}.btn:disabled{opacity:.5}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl td,.tbl th{border-bottom:1px solid var(--ln);padding:5px 4px;text-align:right;vertical-align:top}
+.tomb{opacity:.55;text-decoration:line-through}
+.grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.code,pre{direction:ltr;text-align:left;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-all}
+textarea.code{min-height:150px}
+[data-for]{display:none}
+body[data-mode=A] [data-for=A],body[data-mode=B] [data-for=B],body[data-mode=D] [data-for=D],body[data-mode=AUTO] [data-for=A],body[data-mode=AUTO] [data-for=B]{display:block}
+#modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+#modal[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-mode="AUTO">
+<header class="top"><button id="menuBtn" class="ico" aria-label="القائمة">☰</button><div class="ttl">ADLI</div><span class="grow"></span><button id="newBtn" class="ico" aria-label="محادثة جديدة">✎</button></header>
+<main id="scroller"><div class="col"><div id="empty"><h1>كيف أساعدك اليوم؟</h1><p>أحسب وأستنتج وأتذكر وأبحث، كل ذلك على جهازك.</p><div class="sug" id="sug"></div></div><div id="chat"></div></div></main>
+<footer class="comp"><div class="col"><div id="banner"></div><div class="box"><textarea id="q" rows="1" placeholder="اسأل ADLI…"></textarea><button id="send" class="send" aria-label="إرسال">↑</button></div><div class="hint">ADLI يعمل على جهازك ويتحقق من إجاباته قبل عرضها.</div></div></footer>
+<div id="scrim"></div>
+<aside id="side">
+<div class="side-h"><b class="ttl">ADLI</b><button id="sideClose" class="ico" aria-label="إغلاق">✕</button></div>
+<button id="sideNew" class="btn wide">＋ محادثة جديدة</button>
+<div id="sesList"></div>
+<nav class="menu"><button data-go="t6">⚙️ الإعدادات والمحرك</button><button data-go="t2">🧠 الذاكرة والمعرفة</button><button data-go="t3">🌐 البحث في الويب</button><button data-go="t4">🛡️ المصائد والتشفير</button><button data-go="t5">📊 مختبر القياس</button></nav>
+<div class="side-f" id="sideNet"></div>
+</aside>
+<div id="ovl" hidden>
+<div class="ovl-top"><button id="ovlBack" class="ico" aria-label="رجوع">→</button><b id="ovlTitle"></b></div>
+<div class="ovl-body">
+<section id="t6">
+<div class="card"><h3>حالة النظام</h3>
+<div class="row"><button id="fpsBtn" class="chip">FPS —</button><span id="netChip" class="chip">…</span><span id="shaChip" class="chip">SHA-256 …</span></div>
+<div id="fpsInfo"><canvas id="fpsCv" width="260" height="40"></canvas><div id="fpsTxt" class="mu sm"></div></div>
+<div id="thInfo" class="mu sm"></div><div id="brainSt" class="sm"></div></div>
+<div class="card"><h3>فحص البيئة</h3><div class="mu sm">يعرض ما يدعمه هذا المتصفح فعلًا: WebGPU والتخزين والخيوط والاتصال.</div><div class="row"><button class="btn ghost" id="envRun">تشغيل الفحص</button></div><pre id="envOut" style="direction:rtl;text-align:right"></pre></div>
+<div class="card"><h3>العقل والمحرك</h3>
+<div class="modes" id="modes"><button data-m="AUTO">تلقائي</button><button data-m="A">A · WebGPU</button><button data-m="B">B · Localhost</button><button data-m="C">C · رمزي</button><button data-m="D">D · سحابة</button></div>
+<label class="row"><input type="checkbox" id="webTog"> السماح بالبحث في الويب عند الحاجة (يُغلق الاتصال بعد الجلب)</label>
+<label class="row"><input type="checkbox" id="learnTog"> التعلّم التلقائي من المحادثات وحفظ الحقائق</label>
+<div class="row"><button class="btn" id="brainLoad">تنزيل وتهيئة العقل</button></div>
+<div class="card" data-for="A"><label>المحرك</label><select id="cA_engine"><option value="webllm">WebLLM (WebGPU)</option><option value="transformers">Transformers.js (WebGPU / WASM)</option></select>
+<label>الحجم</label><select id="cA_size"><option value="balanced">متوازن (≈1GB — الأفضل للعربية)</option><option value="small">خفيف (≈400MB)</option></select>
+<label>معرّف نموذج محدد (اختياري)</label><input id="cA_model" class="code" list="mlist"><datalist id="mlist"></datalist>
+<label>رابط مكتبة بديل (اختياري، مثلًا ./vendor/web-llm.js)</label><input id="cA_lib" class="code" placeholder="https://…/web-llm.js">
+<div class="row"><span class="mu sm" id="cA_st"></span></div>
+<label>حفظ ملف نموذج في الخزنة الفيزيائية OPFS</label><input id="cA_url" class="code" placeholder="https://…/model.onnx"><input id="cA_name" class="code" placeholder="model.onnx" style="margin-top:4px">
+<div class="row"><button class="btn ghost" id="cA_opfs">تنزيل إلى OPFS</button></div><pre id="cA_files"></pre></div>
+<div class="card" data-for="B"><label>عنوان الجسر المحلي (Ollama أو llama-server)</label><input id="cB_url" class="code" value="http://127.0.0.1:11434">
+<label>الواجهة</label><select id="cB_style"><option value="ollama">Ollama (/api/chat)</option><option value="openai">متوافق مع OpenAI (llama.cpp / LM Studio)</option></select>
+<label>اسم النموذج</label><input id="cB_model" class="code" value="qwen2.5:0.5b">
+<div class="row"><button class="btn" id="cB_test">اختبار الاتصال</button><span class="mu sm" id="cB_st"></span></div><div class="mu sm">يلزم السماح بالأصل: OLLAMA_ORIGINS=*</div></div>
+<div class="card" data-for="D"><label>عنوان الخدمة (Anthropic Messages)</label><input id="cD_url" class="code" value="https://api.anthropic.com/v1/messages">
+<label>النموذج</label><input id="cD_model" class="code" value="claude-sonnet-5-5"><label>مفتاح API (يبقى في الذاكرة فقط)</label><input id="cD_key" type="password" class="code">
+<label class="row"><input type="checkbox" id="cD_ok"> أوافق على إرسال السؤال والسياق خارج الجهاز (يُختم [مصدر خارجي])</label></div>
+</div>
+</section>
+<section id="t2">
+<div class="card"><h3>إضافة إلى الخزنة المعرفية</h3>
+<div class="grid"><div><label>النوع</label><select id="mKind"><option value="fact">حقيقة</option><option value="note">ملاحظة</option><option value="book">فصل كتاب</option></select></div>
+<div><label>التصنيف</label><input id="mCat" placeholder="عام"></div><div><label>العنوان (اختياري)</label><input id="mTitle"></div></div>
+<label>النص</label><textarea id="mText" rows="3"></textarea>
+<div class="row"><button class="btn" id="mAdd">حفظ في الخزنة</button><button class="btn ghost" id="mDemo">بيانات تجريبية</button><span id="mMsg" class="mu sm"></span></div></div>
+<div class="card"><h3>مقارنة حية بين 5 طرق استرجاع</h3><div class="row"><input id="lQ" placeholder="اكتب استعلامًا…" style="flex:1"><button class="btn" id="lGo">قارن</button></div><div id="lOut" class="grid"></div></div>
+<div class="card"><h3>شبكة المرادفات</h3><textarea id="lexTxt" rows="2" placeholder="سيارة مركبة عربة"></textarea><div class="row"><button class="btn ghost" id="lexAdd">إضافة وإعادة الفهرسة</button><span id="lexMsg" class="mu sm"></span></div></div>
+<div class="card"><h3>الذكريات المعتمدة <span class="mu sm" id="mCount"></span></h3><div id="mList" style="overflow:auto"></div></div>
+<div class="card"><h3>السجل الأصلي الثابت <span class="mu sm" id="logCount"></span></h3><div id="logList" style="overflow:auto"></div></div>
+</section>
+<section id="t3">
+<div class="card"><h3>بحث مستقل في الويب (Wikipedia AR / EN + Wikidata)</h3><div class="row"><input id="wQ" placeholder="موضوع البحث…" style="flex:1"><button class="btn" id="wGo">ابحث</button></div><div id="wMsg" class="mu sm"></div></div>
+<div id="wOut"></div>
+</section>
+<section id="t4">
+<div class="card"><h3>قواعد المصائد المعرفية (LogicTrapdoor JSON)</h3><textarea id="rulesTxt" class="code"></textarea>
+<div class="row"><button class="btn" id="rulesSave">تحقق واحسب البصمة واحفظ</button><button class="btn ghost" id="rulesReset">الافتراضي</button></div><div id="rulesInfo" class="sm code"></div></div>
+<div class="card"><h3>جرّب المصائد</h3><textarea id="trapTxt" class="code" style="min-height:90px">{"draft":{"answer":"الناتج: 88","confidence":0.9},"meta":{"expectedNumber":87}}</textarea>
+<div class="row"><button class="btn ghost" id="trapRun">شغّل</button></div><pre id="trapOut"></pre></div>
+<div class="card"><h3>خزنة التشفير AES-GCM 256</h3><input id="kPass" type="password" placeholder="عبارة المرور" class="code">
+<div class="row"><button class="btn" id="kDerive">اشتقاق المفتاح</button><button class="btn ghost" id="kEnc">تشفير آخر السجلات</button><button class="btn ghost" id="kDec">فك وتحقق</button><button class="btn ghost" id="kLock">قفل</button></div><pre id="kOut"></pre></div>
+<div class="card"><h3>التدمير النووي المحلي</h3><div class="mu sm">يمسح كل الجداول الدائمة وملفات OPFS ولا رجعة فيه.</div><div class="row"><button class="btn bad" id="purge">Nuclear Purge</button></div></div>
+</section>
+<section id="t5">
+<div class="card"><h3>مختبر القياس السيادي</h3><div class="row"><button class="btn" id="bRun">تشغيل حزمة القبول الآلية</button><span id="bMsg" class="mu sm"></span></div><div id="bOut"></div></div>
+</section>
+</div>
+</div>
+<div id="modal" hidden></div>
+<script>
+'use strict';
+/* ADLI — MASTER UNIFIED BUILD: single file, offline-first. Threads: UI + cognitive worker + io worker (inline Blob workers). */
+
+/* ============ 0. UTILITIES ============ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const on = (s, ev, fn) => $(s).addEventListener(ev, fn);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = p => (p || 'id') + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const sleep = t => new Promise(r => setTimeout(r, t));
+const short = (s, n = 90) => { s = String(s ?? ''); return s.length > n ? s.slice(0, n) + '…' : s; };
+const fmtNum = n => (Number.isInteger(n) ? String(n) : String(Number(n.toPrecision(12))));
+const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function fetchJson(url, opt = {}, ms = 9000) { const ac = new AbortController(), t = setTimeout(() => ac.abort(), ms); if (opt.signal) { if (opt.signal.aborted) ac.abort(); else opt.signal.addEventListener('abort', () => ac.abort(), { once: true }); } try { const r = await fetch(url, { ...opt, signal: ac.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(t); } }
+
+/* ============ 1. DATA: synonym network, stop words, default trap rules ============ */
+const LEXICON = [
+'اشترى يشتري اشتريت ابتاع يبتاع تسوق شراء ابتياع', 'باع يبيع بيع عرض تاجر تجارة', 'سيارة سيارات مركبة مركبات عربة آلية شاحنة حافلة',
+'طبيب أطباء دكتور معالج جراح استشاري', 'دواء أدوية عقار عقاقير وصفة علاج حبوب', 'مريض مرضى عليل عليلة سقيم مصاب', 'مستشفى مشفى عيادة مصحة',
+'مرض أمراض داء علة عدوى وباء', 'عائلة أسرة اهل ذوي أقارب', 'سافر يسافر رحل يرحل ارتحل سفر رحلة تنقل', 'طائرة طائرات طيران مطار جوا',
+'منزل منازل بيت بيوت دار مسكن شقة', 'سكن يسكن قطن يقطن عاش يعيش أقام يقيم إقامة', 'كبير كبيرة ضخم ضخمة واسع واسعة عظيم هائل',
+'صغير صغيرة ضئيل دقيق مصغر', 'قرب بجوار بالقرب مجاور مجاورة جنب', 'بحر بحار شاطئ ساحل محيط خليج', 'درس يدرس تعلم يتعلم دراسة تحصيل',
+'طالب طلاب تلميذ تلاميذ دارس متعلم', 'معلم معلمون مدرس أستاذ مربي', 'مدرسة مدارس معهد ثانوية', 'جامعة جامعات كلية أكاديمية',
+'رياضيات حساب جبر هندسة أرقام', 'عمل يعمل وظيفة شغل مهنة', 'شركة شركات مؤسسة منشأة مصنع مصانع', 'موظف موظفون عامل عمال مستخدم أجير',
+'وظف يوظف عين يعين استقدم استخدم', 'مال نقود فلوس ريال درهم دينار دولار', 'سعر أسعار ثمن تكلفة كلفة قيمة',
+'ارتفع يرتفع زاد يزيد ازداد صعد غلا يغلو تضخم', 'انخفض ينخفض هبط يهبط تراجع رخص قل نقص', 'وقود بنزين ديزل نفط غاز',
+'طعام أكل غذاء وجبة مأكولات', 'شرب يشرب ارتشف', 'ماء مياه', 'صباح صباحا فجر ضحى', 'ليل مساء عشاء غروب', 'شهر أشهر أسبوع أسابيع سنة عام',
+'ملك سلطان أمير حاكم رئيس مدير', 'دولة دول بلد بلاد وطن أمة', 'مدينة مدن بلدة قرية', 'كتاب كتب مؤلف مجلد رواية مرجع', 'قرأ يقرأ طالع تصفح',
+'كتب يكتب دون حرر', 'حاسوب حاسب كمبيوتر جهاز', 'هاتف جوال موبايل تلفون', 'إنترنت شبكة ويب', 'برنامج برامج تطبيق تطبيقات برمجية شيفرة',
+'سريع سريعة عاجل خاطف مستعجل', 'بطيء بطيئة متباطئ متمهل', 'سعيد سعيدة فرح مسرور مبتهج', 'حزين حزينة كئيب مكتئب', 'صديق أصدقاء رفيق زميل صاحب',
+'حرب حروب قتال معركة صراع', 'سلام صلح هدنة', 'طقس مناخ أجواء', 'مطر أمطار غيث هطول', 'حار حارة ساخن ساخنة حرارة', 'بارد باردة قارس صقيع',
+'قديم قديمة عتيق أثري', 'جديد جديدة حديث حديثة مستحدث', 'بنى يبني شيد أنشأ', 'هدم يهدم دمر يدمر حطم', 'بدأ يبدأ شرع باشر انطلق',
+'انتهى ينتهي أنهى خلص اختتم', 'أعطى يعطي منح يمنح وهب قدم أهدى', 'أخذ يأخذ استلم تسلم حصل', 'قال يقول صرح أعلن ذكر تحدث', 'ساعد يساعد عاون أعان دعم',
+'طفل أطفال صبي ولد فتى', 'رجل رجال ذكر', 'امرأة نساء سيدة أنثى', 'قانون قوانين نظام تشريع لائحة', 'خبر أخبار نبأ أنباء',
+'اجتماع اجتمع يجتمع لقاء مؤتمر ندوة', 'عقد اتفاقية صفقة تعاقد', 'متجر محل سوق دكان معرض', 'مهندس مهندسون فني تقني', 'حيوان حيوانات دابة وحش'
+];
+const STOPLIST = 'و في من على إلى الى عن هذا هذه ذلك تلك التي الذي الذين هو هي هم هن ما ماذا كم كيف لماذا أين اين متى هل أن ان إن انه انها كان كانت يكون تكون قد لقد ثم أو او أم بل لكن حتى كل بعض بين عند لدى مع بعد قبل خلال حول نحو إذا اذا أي اي أيضا ايضا فقط جدا هنا هناك الآن الان به بها بهم له لها لهم فيه فيها منه منها عنه عنها عليه عليها منذ لا لم لن ليس ليست غير بدون كما إلا الا أنا انا نحن أنت انت لي لك';
+const DEFAULT_RULES = [
+ { id: 'R1', condition: { variable: 'confidence', operator: '<', threshold: 0.4 }, constraint: { target: 'unsourced_claims', max_allowed: 0, violation_msg: 'RULE-R1: ثقة منخفضة مع ادعاءات بلا مصدر.' } },
+ { id: 'R2', condition: { variable: 'is_research', operator: '==', threshold: 1 }, constraint: { target: 'missing_sources', max_allowed: 0, violation_msg: 'RULE-R2: إجابة بحثية بلا مصدر موثّق.' } },
+ { id: 'R3', condition: { variable: 'cloud_used', operator: '==', threshold: 1 }, constraint: { target: 'unstamped_external', max_allowed: 0, violation_msg: 'RULE-R3: ردّ سحابي دون ختم [مصدر خارجي].' } },
+ { id: 'R4', condition: { variable: 'answer_chars', operator: '>', threshold: 4000 }, constraint: { target: 'answer_chars', max_allowed: 6000, violation_msg: 'RULE-R4: الإجابة أطول من الحد الآمن.' } }
+];
+
+/* ============ 2. ARABIC NLP — Room 3 reference stemmer + local concept embeddings ============ */
+function normalizeAndStemArabic(text) {
+    if (!text) return "";
+    let norm = text
+        .replace(/[\u064B-\u065F\u0670]/g, '') // strip diacritics
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/ؤ/g, 'و')
+        .replace(/ئ/g, 'ي');
+    return norm.split(/\s+/).map(word => {
+        let w = word.replace(/^(وال|بال|كال|فال|لل|ال)/, '');
+        w = w.replace(/(ون|ين|ات|ان|ها|هم|هن|كم|نا|يه|ه)$/, '');
+        return w.length >= 2 ? w : word;
+    }).join(' ');
+}
+function makeNlp(lexicon, stopList) {
+  const toAscii = s => String(s).replace(/[٠-٩]/g, d => d.charCodeAt(0) - 1632).replace(/[۰-۹]/g, d => d.charCodeAt(0) - 1776).replace(/٫/g, '.').replace(/٪/g, '%');
+  const fold = t => String(t).replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي');
+  const clean = t => toAscii(t || '').toLowerCase().replace(/[^\u0600-\u06FFa-z0-9\s]/g, ' ').replace(/[\u060C\u061B\u061F\u066A-\u066D\u06D4]/g, ' ');
+  const stop = new Set(stopList.split(/\s+/).filter(Boolean).map(fold));
+  const words = t => fold(clean(t)).split(/\s+/).filter(Boolean);
+  const isStop = w => stop.has(w) || (w.length > 2 && w[0] === 'و' && stop.has(w.slice(1)));
+  const content = t => words(t).filter(w => !isStop(w));
+  const stem = w => normalizeAndStemArabic(w);
+  const stems = t => content(t).map(stem);
+  const concepts = [], index = new Map();
+  const addGroup = g => { const ss = [...new Set((Array.isArray(g) ? g : String(g).split(/[\s،,]+/)).filter(Boolean).map(w => stem(fold(clean(w)))))]; const id = concepts.length; concepts.push(ss); ss.forEach(s => { if (!index.has(s)) index.set(s, []); index.get(s).push(id); }); return id; };
+  lexicon.forEach(addGroup);
+  const conceptsOf = s => { for (const k of [s, s.replace(/(ت|وا|ا)$/, '')]) { const c = index.get(k); if (c) return c; } return []; };
+  const expand = s => { const o = new Set(); conceptsOf(s).forEach(c => concepts[c].forEach(x => { if (x !== s) o.add(x); })); return [...o]; };
+  const hash = s => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return h >>> 0; };
+  const put = (v, key, w) => { for (let k = 0; k < 4; k++) { const hh = hash(key + '#' + k); v[hh % v.length] += ((hh >>> 16) & 1 ? 1 : -1) * w / 2; } };
+  const embed = (text, dim = 384) => { const v = new Float32Array(dim); for (const s of stems(text)) { put(v, 's:' + s, 0.6); for (const c of conceptsOf(s)) put(v, 'c:' + c, 1); } let n = 0; for (let i = 0; i < dim; i++) n += v[i] * v[i]; n = Math.sqrt(n) || 1; for (let i = 0; i < dim; i++) v[i] /= n; return Array.from(v); };
+  return { toAscii, fold, clean, words, content, stem, stems, addGroup, conceptsOf, expand, embed, stop };
+}
+
+/* ============ 3. SYMBOLIC CORE (Mode C): math, number theory, comparison chains, syllogisms ============ */
+function makeSymbolic(nlp) {
+  const F = nlp.fold;
+  const fmt = n => (Number.isInteger(n) ? String(n) : String(Number(n.toPrecision(12))));
+  function evalMath(src) {
+    const s = src.replace(/\s+/g, ''); if (!s || s.length > 200) throw new Error('تعبير غير صالح');
+    const toks = [], re = /(\d+(?:\.\d+)?|\.\d+)|([a-z]+)|([+\-*\/^%(),])/y; let i = 0;
+    while (i < s.length) { re.lastIndex = i; const m = re.exec(s); if (!m) throw new Error('رمز غير مسموح'); toks.push(m[1] !== undefined ? { n: parseFloat(m[1]) } : m[2] ? { id: m[2] } : { op: m[3] }); i = re.lastIndex; }
+    let p = 0, depth = 0; const isOp = o => toks[p] && toks[p].op === o;
+    const expr = () => { let v = term(); while (isOp('+') || isOp('-')) { const o = toks[p++].op, r = term(); v = o === '+' ? v + r : v - r; } return v; };
+    const term = () => { let v = unary(); while (isOp('*') || isOp('/') || isOp('%')) { const o = toks[p++].op, r = unary(); if (o === '*') v *= r; else { if (r === 0) throw new Error('القسمة على صفر'); v = o === '/' ? v / r : v % r; } } return v; };
+    const unary = () => { if (isOp('-')) { p++; return -unary(); } if (isOp('+')) { p++; return unary(); } return power(); };
+    const power = () => { const b = primary(); if (isOp('^')) { p++; return Math.pow(b, unary()); } return b; };
+    const primary = () => {
+      const t = toks[p++]; if (!t) throw new Error('تعبير ناقص'); if (t.n !== undefined) return t.n;
+      if (t.op === '(') { if (++depth > 40) throw new Error('تداخل مفرط'); const v = expr(); if (!isOp(')')) throw new Error('قوس ناقص'); p++; depth--; return v; }
+      if (t.id === 'pi') return Math.PI; if (t.id === 'e') return Math.E;
+      const fn = { sqrt: Math.sqrt, abs: Math.abs, round: Math.round, floor: Math.floor, ceil: Math.ceil }[t.id];
+      if (fn && isOp('(')) { p++; const v = expr(); if (!isOp(')')) throw new Error('قوس ناقص'); p++; return fn(v); }
+      throw new Error('رمز غير مفهوم');
+    };
+    const v = expr(); if (p < toks.length) throw new Error('تعبير غير مكتمل'); if (!isFinite(v)) throw new Error('نتيجة غير معرّفة'); return v;
+  }
+  const alt = list => list.split('|').map(F).join('|');
+  const rep = (t, list, to) => t.replace(new RegExp('(^|\\s)(?:' + alt(list) + ')(?=\\s|$)', 'g'), '$1 ' + to + ' ');
+  const NUM = '(\\d+(?:\\.\\d+)?)';
+  function extractExpr(text) {
+    let t = F(nlp.toAscii(String(text || '')).toLowerCase()).replace(/\u2212/g, '-').replace(/÷/g, '/').replace(/[؟?!:=،]/g, ' ').replace(/(\d),(\d{3})(?!\d)/g, '$1$2').replace(/(\d)\s*[x×]\s*(?=\d)/g, '$1*');
+    t = t.replace(new RegExp(NUM + '\\s*(?:%|' + alt('بالمئة|في المئة|بالمائة|في المائة') + ')\\s*(?:' + F('من') + '|of)\\s*' + NUM, 'g'), '($1/100*$2)');
+    t = t.replace(new RegExp(F('اطرح') + '\\s*' + NUM + '\\s*' + F('من') + '\\s*' + NUM, 'g'), '($2-$1)');
+    t = t.replace(new RegExp('(?:' + alt('الجذر التربيعي ل|الجذر التربيعي|جذر') + ')\\s*' + NUM, 'g'), 'sqrt($1)');
+    t = rep(t, 'ضرب في|مضروبا في|مضروب في|ضرب', '*'); t = rep(t, 'زائد|جمع|اجمع|اضف', '+'); t = rep(t, 'ناقص|طرح|مطروحا', '-');
+    t = rep(t, 'مقسوما على|مقسوم على|قسمة على|تقسيم', '/'); t = rep(t, 'مرفوعا الى|اس|قوة', '^');
+    t = t.replace(new RegExp('(\\d)\\s*' + F('في') + '\\s*(?=\\d)', 'g'), '$1 * ').replace(new RegExp('(\\d)\\s*' + F('على') + '\\s*(?=\\d)', 'g'), '$1 / ');
+    t = rep(t, 'كم|ناتج|احسب|حاصل|ما|هو|هي|يساوي|تساوي|الناتج|النتيجة|اوجد|جد|حل|هل|الان|لي|بسرعة|رجاء|ارجوك', ' ').replace(/\s+/g, ' ').trim();
+    return /^[\d\s+\-*\/^%().a-z]+$/.test(t) && /\d/.test(t) && /[+\-*\/^%]|sqrt|abs|round|floor|ceil/.test(t) ? t : null;
+  }
+  const solveMath = q => {
+    const e = extractExpr(q); if (!e) return null;
+    try { const v = evalMath(e); return { type: 'math', value: v, answer: 'الناتج: ' + fmt(v), steps: ['صيغة رمزية: ' + e] }; }
+    catch (x) { return /صفر|معرّفة/.test(x.message) ? { type: 'math', error: x.message, answer: 'لا يمكن الحساب: ' + x.message, steps: ['صيغة رمزية: ' + e] } : null; }
+  };
+  const isPrime = n => { if (n < 2) return false; for (let i = 2; i * i <= n; i++) if (n % i === 0) return false; return true; };
+  const solveNumber = q => {
+    const m = F(nlp.toAscii(q)).match(/هل\s+(?:العدد\s+)?(\d{1,12})\s+(?:هو\s+)?(?:عدد\s+)?(اولي|زوجي|فردي)/); if (!m) return null;
+    const n = +m[1], yes = m[2] === 'اولي' ? isPrime(n) : m[2] === 'زوجي' ? n % 2 === 0 : n % 2 === 1;
+    return { type: 'logic', answer: (yes ? 'نعم' : 'لا') + `: العدد ${n} ${yes ? 'هو' : 'ليس'} ${{ اولي: 'أولي', زوجي: 'زوجي', فردي: 'فردي' }[m[2]]}`, steps: ['فحص رياضي حتمي'] };
+  };
+  const CMP = { 'أطول': ['طول', 1], 'أقصر': ['طول', -1], 'أكبر': ['حجم', 1], 'أصغر': ['حجم', -1], 'أسرع': ['سرعة', 1], 'أبطأ': ['سرعة', -1], 'أثقل': ['وزن', 1], 'أخف': ['وزن', -1], 'أغنى': ['ثراء', 1], 'أفقر': ['ثراء', -1], 'أقدم': ['قدم', 1], 'أحدث': ['قدم', -1], 'أكثر': ['كثرة', 1], 'أقل': ['كثرة', -1], 'أعلى': ['علو', 1], 'أدنى': ['علو', -1], 'أذكى': ['ذكاء', 1], 'أقوى': ['قوة', 1], 'أضعف': ['قوة', -1], 'أغلى': ['سعر', 1], 'أرخص': ['سعر', -1] };
+  const CF = {}; Object.keys(CMP).forEach(k => { CF[F(k)] = { w: k, d: CMP[k][0], s: CMP[k][1] }; });
+  const tokens = s => nlp.toAscii(String(s)).replace(/[،,؛;.؟?!]/g, ' | ').split(/\s+/).filter(Boolean);
+  const nkey = t => F(t).replace(/^ال/, '');
+  const supOf = w => (/^ال/.test(w) && CF[w.slice(2)]) || (/(هم|هن)$/.test(w) && CF[w.slice(0, -2)]) || null;
+  function solveCompare(q, facts) {
+    const qt = tokens(q), qf = qt.map(F); let qi = qt.length;
+    for (let i = 0; i < qt.length; i++) {
+      if (qf[i] === 'هل') { qi = i; break; }
+      if (['من', 'ايهم', 'اي'].includes(qf[i])) { let j = i + 1; if (qf[j] === 'هو' || qf[j] === 'هي') j++; if (supOf(qf[j] || '')) { qi = i; break; } }
+    }
+    const rels = [], disp = {};
+    const scan = tk => { const ft = tk.map(F); for (let i = 0; i + 3 < tk.length; i++) { let j = i + 1; if (ft[j] === 'هو' || ft[j] === 'هي') j++; const c = CF[ft[j]]; if (c && ft[j + 1] === 'من' && tk[i] !== '|' && tk[j + 2] && tk[j + 2] !== '|') rels.push({ a: tk[i], b: tk[j + 2], c }); } };
+    facts.forEach(f => scan(tokens(f))); scan(qt.slice(0, qi));
+    const qq = qt.slice(qi), qqf = qq.map(F); let sup = null, yn = null;
+    for (let i = 0; i < qq.length; i++) {
+      const sw = supOf(qqf[i]); if (sw) sup = sw;
+      if (qqf[i] === 'هل') { let j = i + 2; if (qqf[j] === 'هو' || qqf[j] === 'هي') j++; if (CF[qqf[j]] && qqf[j + 1] === 'من' && qq[j + 2]) yn = { a: qq[i + 1], c: CF[qqf[j]], b: qq[j + 2] }; }
+    }
+    if (!rels.length || (!sup && !yn)) return null;
+    const keys = new Set(); rels.forEach(r => { keys.add(nkey(r.b)); if (!nkey(r.a).startsWith('و')) keys.add(nkey(r.a)); });
+    rels.forEach(r => { if (nkey(r.a).startsWith('و') && keys.has(nkey(r.a).slice(1))) r.a = r.a.replace(/^و/, ''); disp[nkey(r.a)] = disp[nkey(r.a)] || r.a; disp[nkey(r.b)] = disp[nkey(r.b)] || r.b; });
+    const G = {}; rels.forEach(r => { (G[r.c.d] = G[r.c.d] || []).push(r.c.s > 0 ? [nkey(r.a), nkey(r.b)] : [nkey(r.b), nkey(r.a)]); });
+    const reach = (E, x, y) => { const seen = new Set([x]), st = [x]; while (st.length) { const u = st.pop(); if (u === y) return true; E.filter(e => e[0] === u).forEach(e => { if (!seen.has(e[1])) { seen.add(e[1]); st.push(e[1]); } }); } return false; };
+    const steps = ['علاقات: ' + rels.map(r => `${r.a} ${r.c.w} من ${r.b}`).join('، ')], L = answer => ({ type: 'logic', answer, steps });
+    if (yn) { const E = G[yn.c.d] || [], x = nkey(yn.a), y = nkey(yn.b), [hi, lo] = yn.c.s > 0 ? [x, y] : [y, x]; return L(reach(E, hi, lo) ? `نعم: ${yn.a} ${yn.c.w} من ${yn.b} (استنتاج متعدٍّ)` : reach(E, lo, hi) ? 'لا: العكس هو الصحيح بحسب المعطيات' : 'لا يمكن الحسم من المعطيات'); }
+    const E = G[sup.d] || [], nodes = [...new Set(E.flat())], cand = nodes.filter(n => sup.s > 0 ? !E.some(e => e[1] === n) : !E.some(e => e[0] === n));
+    if (cand.length === 1 && nodes.every(n => n === cand[0] || (sup.s > 0 ? reach(E, cand[0], n) : reach(E, n, cand[0])))) return L(`ال${sup.w}: ${disp[cand[0]] || cand[0]}`);
+    return L('لا يمكن الحسم من المعطيات');
+  }
+  function solveSyllo(q, facts) {
+    const E = [], scan = tk => { const ft = tk.map(F); for (let i = 0; i + 2 < tk.length; i++) if (ft[i] === 'كل') { let j = i + 2; if (ft[j] === 'هو' || ft[j] === 'هي') j++; if (tk[j] && tk[j] !== '|') E.push([nlp.stem(ft[i + 1]), nlp.stem(ft[j]), tk[i + 1], tk[j]]); } };
+    const qt = tokens(q), qf = qt.map(F), h = qf.indexOf('هل'); if (h < 0 || qf[h + 1] !== 'كل') return null;
+    facts.forEach(f => scan(tokens(f))); scan(qt.slice(0, h));
+    let j = h + 3; if (qf[j] === 'هو' || qf[j] === 'هي') j++;
+    const x = nlp.stem(qf[h + 2] || ''), y = nlp.stem(qf[j] || ''); if (!x || !y || !E.length) return null;
+    const path = (a, b, seen = new Set()) => { if (a === b) return [a]; seen.add(a); for (const e of E) if (e[0] === a && !seen.has(e[1])) { const r = path(e[1], b, seen); if (r) return [a, ...r]; } return null; };
+    const r = path(x, y);
+    return { type: 'logic', answer: r ? `نعم: كل ${qt[h + 2]} هو ${qt[j]} (سلسلة من ${r.length} حلقات)` : 'لا يمكن الاستنتاج من المعطيات', steps: ['علاقات: ' + E.map(e => `كل ${e[2]} ${e[3]}`).join('، ')] };
+  }
+  return { evalMath, extractExpr, solve: (q, facts = []) => solveMath(q) || solveNumber(q) || solveCompare(q, facts) || solveSyllo(q, facts) || null };
+}
+
+/* ============ 4. THREADS — Room 1: Zero-Core topology, inline Blob workers, main-thread fallback ============ */
+function createEndpoint(port, table) {
+  let seq = 0; const pending = new Map();
+  port.onmessage = async ev => {
+    const m = ev.data || {};
+    if (m.k === 'res') { const q = pending.get(m.id); if (!q) return; pending.delete(m.id); m.err ? q.rej(new Error(m.err)) : q.res(m.result); }
+    else if (m.k === 'req') {
+      try { const fn = table[m.type]; if (!fn) throw new Error('UNKNOWN_TYPE:' + m.type); port.postMessage({ k: 'res', id: m.id, result: await fn(m.payload) }); }
+      catch (e) { port.postMessage({ k: 'res', id: m.id, err: String((e && e.message) || e) }); }
+    }
+  };
+  return { send(type, payload, timeout = 30000) { return new Promise((res, rej) => { const id = ++seq, t = setTimeout(() => { pending.delete(id); rej(new Error('TIMEOUT:' + type)); }, timeout); pending.set(id, { res: v => { clearTimeout(t); res(v); }, rej: e => { clearTimeout(t); rej(e); } }); port.postMessage({ k: 'req', id, type, payload }); }); } };
+}
+/** Storage core: IndexedDB with in-memory fallback. raw_messages is append-only (no update, no delete API). */
+function makeStoreCore(dbName) {
+  const STORES = { raw_messages: 'id', episodes: 'id', approved_knowledge: 'id', rules_vault: 'id', scratchpad_store: 'id', sessions: 'id', settings: 'key', lexicon: 'id' };
+  let db = null, mode = 'memory'; const mem = {}; Object.keys(STORES).forEach(s => { mem[s] = new Map(); });
+  const rp = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  const st = (s, m) => db.transaction(s, m).objectStore(s);
+  async function init() {
+    try {
+      if (typeof indexedDB === 'undefined') throw 0;
+      db = await new Promise((res, rej) => { const o = indexedDB.open(dbName, 1); o.onupgradeneeded = () => { for (const [s, k] of Object.entries(STORES)) if (!o.result.objectStoreNames.contains(s)) o.result.createObjectStore(s, { keyPath: k }); }; o.onsuccess = () => res(o.result); o.onerror = () => rej(o.error); o.onblocked = () => rej(new Error('blocked')); });
+      mode = 'indexeddb';
+    } catch (e) { db = null; mode = 'memory'; }
+    return mode;
+  }
+  async function add(s, v) { const k = v[STORES[s]]; if (db) { await rp(st(s, 'readwrite').add(v)); return k; } if (mem[s].has(k)) throw new Error('IMMUTABLE_EXISTS'); mem[s].set(k, structuredClone(v)); return k; }
+  async function put(s, v) { if (s === 'raw_messages') throw new Error('IMMUTABLE_STORE: raw_messages is append-only'); const k = v[STORES[s]]; if (db) { await rp(st(s, 'readwrite').put(v)); return k; } mem[s].set(k, structuredClone(v)); return k; }
+  const get = async (s, k) => (db ? rp(st(s, 'readonly').get(k)) : mem[s].get(k));
+  const all = async s => (db ? rp(st(s, 'readonly').getAll()) : [...mem[s].values()]);
+  const count = async s => (db ? rp(st(s, 'readonly').count()) : mem[s].size);
+  async function wipeScratchpadOnly() { if (db) await rp(st('scratchpad_store', 'readwrite').clear()); else mem.scratchpad_store.clear(); return true; }
+  async function purgeAll() { for (const s of Object.keys(STORES)) { if (db) await rp(st(s, 'readwrite').clear()); else mem[s].clear(); } return true; }
+  async function dropDatabase() { if (db) { db.close(); await new Promise(r => { const q = indexedDB.deleteDatabase(dbName); q.onsuccess = q.onerror = q.onblocked = () => r(); }); db = null; } Object.values(mem).forEach(m => m.clear()); }
+  return { init, add, put, get, all, count, wipeScratchpadOnly, purgeAll, dropDatabase, getMode: () => mode };
+}
+function ioHandlers(core) {
+  return {
+    PING: () => 'pong', DB_MODE: () => core.getMode(),
+    DB_ADD: p => core.add(p.store, p.value), DB_PUT: p => core.put(p.store, p.value), DB_GET: p => core.get(p.store, p.key), DB_ALL: p => core.all(p.store), DB_COUNT: p => core.count(p.store),
+    SPILL_DATA: async p => { const id = 'spill-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7); await core.put('scratchpad_store', { id, sessionId: p.sessionId, payload: p.payload, ts: p.timestamp, spill: true }); return id; },
+    WIPE_SCRATCHPAD_ONLY: () => core.wipeScratchpadOnly(),
+    WIPE_DATABASE: () => core.wipeScratchpadOnly(), // alias: scratchpad ONLY, never the permanent stores
+    NUCLEAR_PURGE: () => core.purgeAll()
+  };
+}
+/** Cognitive worker body: RAM scratch pool + spillover (Room 1 reference), symbolic solve, batch embeddings. */
+function cognitiveHandlers(env) {
+  const MAX_RAM_TOKENS = 4096;
+  let memoryPool = new Float32Array(MAX_RAM_TOKENS * 512);
+  let currentTokenCount = 0;
+  let diskPointers = [];
+  let stepTexts = [];
+  async function triggerSpillover(ioBridge, chunkToSave, sessionId) {
+    const pointerId = await ioBridge.send('SPILL_DATA', { sessionId, payload: chunkToSave, timestamp: Date.now() });
+    diskPointers.push(pointerId);
+  }
+  function flushEphemeralScratchpad(ioBridge) {
+    memoryPool.fill(0); // safe zeroing of the temporary RAM only
+    currentTokenCount = 0;
+    diskPointers = [];
+    stepTexts = [];
+    return ioBridge.send('WIPE_SCRATCHPAD_ONLY', {}); // never touches permanent memory
+  }
+  return {
+    PING: () => 'pong',
+    SOLVE: p => env.sym.solve(p.question, p.facts || []),
+    EMBED_BATCH: p => p.texts.map(t => env.nlp.embed(t)),
+    SET_LEXICON: p => { p.groups.forEach(g => env.nlp.addGroup(g)); return true; },
+    PUSH_SCRATCH: async p => {
+      if (currentTokenCount >= MAX_RAM_TOKENS) {
+        const half = MAX_RAM_TOKENS >> 1;
+        await triggerSpillover(env.ioBridge, stepTexts.splice(0, half), p.sessionId);
+        memoryPool.copyWithin(0, half * 512, currentTokenCount * 512);
+        memoryPool.fill(0, (currentTokenCount - half) * 512, currentTokenCount * 512);
+        currentTokenCount -= half;
+      }
+      memoryPool.set(env.nlp.embed(p.text, 512), currentTokenCount * 512);
+      stepTexts.push(p.text); currentTokenCount++;
+      return { tokens: currentTokenCount, spilled: diskPointers.length };
+    },
+    FLUSH_SCRATCH: () => flushEphemeralScratchpad(env.ioBridge).then(() => true),
+    POOL_STATS: () => { let sum = 0; for (let i = 0; i < memoryPool.length; i++) sum += Math.abs(memoryPool[i]); return { tokens: currentTokenCount, max: MAX_RAM_TOKENS, spilled: diskPointers.length, checksum: sum }; }
+  };
+}
+const COG_BOOT = "const table={PING:()=>'pong'};const ep=createEndpoint(self,table);table.INIT=()=>{const nlp=makeNlp(LEXICON,STOPLIST);const sym=makeSymbolic(nlp);Object.assign(table,cognitiveHandlers({nlp:nlp,sym:sym,ioBridge:{send:(type,payload)=>ep.send('IO_RELAY',{type:type,payload:payload})}}));return true;};";
+const IO_BOOT = "const table={PING:()=>'pong'};createEndpoint(self,table);table.INIT=async p=>{const core=makeStoreCore(p.dbName);await core.init();Object.assign(table,ioHandlers(core));return core.getMode();};";
+const fnSrc = (...fs) => fs.map(f => f.toString()).join('\n');
+const COG_WORKER_SRC = 'const LEXICON=' + JSON.stringify(LEXICON) + ';const STOPLIST=' + JSON.stringify(STOPLIST) + ';\n' + fnSrc(createEndpoint, normalizeAndStemArabic, makeNlp, makeSymbolic, cognitiveHandlers) + '\n' + COG_BOOT;
+const IO_WORKER_SRC = fnSrc(createEndpoint, makeStoreCore, ioHandlers) + '\n' + IO_BOOT;
+const NLP = makeNlp(LEXICON, STOPLIST), SYM = makeSymbolic(NLP);
+
+/* ============ 4b. THREAD BRIDGE v0.6 — worker ladder (blob -> data: -> main thread), silent fallback, preview-safe storage ============ */
+const utf8ToB64 = s => { const u = new TextEncoder().encode(s); let t = ''; for (let i = 0; i < u.length; i += 0x8000) t += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(t); };
+const runHandler = (h, t, p) => { const f = h[t]; return f ? Promise.resolve(f(p)) : Promise.reject(new Error('UNKNOWN_TYPE:' + t)); };
+/** Sandboxed previews have no IndexedDB. If window.storage exists, mirror the permanent stores into it so learning survives a reload (the scratchpad is never mirrored). */
+async function attachArtifactStorage(core) {
+  const ws = typeof window !== 'undefined' && window.storage;
+  if (core.getMode() !== 'memory' || !ws || typeof ws.get !== 'function' || typeof ws.set !== 'function') return false;
+  const KEEP = ['raw_messages', 'episodes', 'approved_knowledge', 'rules_vault', 'sessions', 'settings', 'lexicon'], key = s => 'adli:' + s;
+  for (const s of KEEP) {
+    let rows = []; try { const r = await ws.get(key(s)); rows = r && r.value ? JSON.parse(r.value) : []; } catch (e) { rows = []; }
+    for (const v of rows) { try { await (s === 'raw_messages' ? core.add : core.put)(s, v); } catch (e) { /* skip a duplicate */ } }
+  }
+  const dirty = new Set(); let timer = 0;
+  const flush = async () => { timer = 0; for (const s of [...dirty]) { dirty.delete(s); try { await ws.set(key(s), JSON.stringify(await core.all(s), (k, v) => (typeof v === 'number' && !Number.isInteger(v) ? +v.toFixed(5) : v))); } catch (e) { core.persistErr = String((e && e.message) || e); } } };
+  const mark = s => { if (KEEP.includes(s)) { dirty.add(s); if (!timer) timer = setTimeout(flush, 500); } };
+  for (const m of ['add', 'put']) { const orig = core[m]; core[m] = async (s, v) => { const r = await orig(s, v); mark(s); return r; }; }
+  const purge = core.purgeAll; core.purgeAll = async () => { const r = await purge(); for (const s of KEEP) { try { await ws.delete(key(s)); } catch (e) { /* ignore */ } } return r; };
+  core.getMode = () => 'artifact-storage'; core.flushNow = flush;
+  return true;
+}
+
+class ThreadBridge {
+  constructor() { this.kind = 'init'; this.err = ''; this.diag = []; this.ioKind = 'main'; this.cogKind = 'main'; this.blobBlocked = false; }
+  describe() { return { workers: 'عاملان معزولان (IO + معرفي)', hybrid: 'العمليات المعرفية في عامل معزول (' + this.cogKind + ') والتخزين في الخيط الرئيسي', 'main-thread': 'الخيط الرئيسي (البيئة تمنع Workers) ✓' }[this.kind] || this.kind; }
+  /** Start one worker through each allowed URL scheme in order; a PING round-trip proves it really runs. Failures are recorded in this.diag, never shown as errors. */
+  async spawn(name, src, schemes, table) {
+    for (const sc of schemes) {
+      if (sc === 'blob' && this.blobBlocked) continue;
+      let w = null;
+      try {
+        w = new Worker(sc === 'blob' ? URL.createObjectURL(new Blob([src], { type: 'application/javascript' })) : 'data:application/javascript;base64,' + utf8ToB64(src));
+        const ep = createEndpoint(w, table);
+        await Promise.race([ep.send('PING', null, 2000), new Promise((_, rej) => { w.onerror = e => rej(new Error((e && e.message) || 'worker error')); })]);
+        return { w, ep, scheme: sc };
+      } catch (e) {
+        const msg = String((e && e.message) || e); this.diag.push(name + '·' + sc + ': ' + msg.slice(0, 140));
+        if (sc === 'blob' && !/^TIMEOUT/.test(msg)) this.blobBlocked = true;
+        try { w && w.terminate(); } catch (x) { /* ignore */ }
+      }
+    }
+    return null;
+  }
+  async boot(dbName) {
+    const io = await this.spawn('IO', IO_WORKER_SRC, ['blob'], {});
+    if (io) {
+      try { await io.ep.send('INIT', { dbName }); this.io = io.ep; this.ioW = io.w; this.ioKind = 'worker'; }
+      catch (e) { this.diag.push('IO·INIT: ' + String((e && e.message) || e).slice(0, 140)); try { io.w.terminate(); } catch (x) { /* ignore */ } }
+    }
+    if (!this.io) { this.core = makeStoreCore(dbName); await this.core.init(); await attachArtifactStorage(this.core); const ioh = ioHandlers(this.core); this.io = { send: (t, p) => runHandler(ioh, t, p) }; }
+    const cog = await this.spawn('COG', COG_WORKER_SRC, ['blob', 'data'], { IO_RELAY: p => this.io.send(p.type, p.payload) });
+    if (cog) {
+      try { await cog.ep.send('INIT', {}); this.cog = cog.ep; this.cogW = cog.w; this.cogKind = cog.scheme; }
+      catch (e) { this.diag.push('COG·INIT: ' + String((e && e.message) || e).slice(0, 140)); try { cog.w.terminate(); } catch (x) { /* ignore */ } }
+    }
+    if (!this.cog) { const cogh = cognitiveHandlers({ nlp: NLP, sym: SYM, ioBridge: this.io }); this.cog = { send: (t, p) => runHandler(cogh, t, p) }; }
+    this.kind = this.ioKind === 'worker' && this.cogKind !== 'main' ? 'workers' : this.ioKind === 'main' && this.cogKind === 'main' ? 'main-thread' : 'hybrid';
+    if (this.diag.length) console.info('[ADLI] thread ladder:', this.kind, this.diag);
+  }
+}
+const TH = new ThreadBridge();
+const IO = (t, p) => TH.io.send(t, p), COG = (t, p) => TH.cog.send(t, p);
+/** selfDestruct: after thinking, wipe ONLY the scratchpad table + temporary RAM; permanent stores are never touched. */
+async function selfDestruct() { await COG('FLUSH_SCRATCH'); await IO('WIPE_DATABASE'); }
+
+/* ============ 5. CIRCUIT BREAKER ============ */
+class CircuitBreaker {
+  constructor({ failureThreshold = 3, cooldownMs = 8000, now = () => Date.now() } = {}) { Object.assign(this, { failureThreshold, cooldownMs, now }); this.state = 'CLOSED'; this.failures = 0; this.openedAt = 0; }
+  canPass() { if (this.state === 'OPEN') { if (this.now() - this.openedAt >= this.cooldownMs) { this.state = 'HALF_OPEN'; return true; } return false; } return true; }
+  onSuccess() { this.failures = 0; this.state = 'CLOSED'; }
+  onFailure() { this.failures++; if (this.state === 'HALF_OPEN' || this.failures >= this.failureThreshold) { this.state = 'OPEN'; this.openedAt = this.now(); } }
+  async exec(fn) { if (!this.canPass()) throw new Error('CIRCUIT_OPEN'); try { const r = await fn(); this.onSuccess(); return r; } catch (e) { this.onFailure(); throw e; } }
+}
+
+/* ============ 6. ROOM 2: OPFS model vault + repetition-penalty decoding ============ */
+async function getModelFromOPFS(url, fileName, onLog) {
+    const opfsRoot = await navigator.storage.getDirectory();
+    try {
+        const fileHandle = await opfsRoot.getFileHandle(fileName);
+        onLog?.("📦 قراءة النموذج من الخزنة المحلية (OPFS)...");
+        const file = await fileHandle.getFile();
+        return URL.createObjectURL(file);
+    } catch {
+        onLog?.("📥 تحميل النموذج وتدفقه مباشرة للقرص (OPFS)...");
+        const fileHandle = await opfsRoot.getFileHandle(fileName, { create: true });
+        const writable = await fileHandle.createWritable();
+        const response = await fetch(url);
+        await response.body.pipeTo(writable);
+        const file = await fileHandle.getFile();
+        return URL.createObjectURL(file);
+    }
+}
+function applyRepetitionPenaltyAndArgmax(logits, generatedTokensHistory, repetitionPenalty = 1.2) {
+    const adjusted = Float32Array.from(logits);
+    for (let tokenId of generatedTokensHistory) {
+        if (adjusted[tokenId] > 0) adjusted[tokenId] /= repetitionPenalty;
+        else adjusted[tokenId] *= repetitionPenalty;
+    }
+    let maxLogit = -Infinity, bestTokenId = 0;
+    for (let i = 0; i < adjusted.length; i++) {
+        if (adjusted[i] > maxLogit) { maxLogit = adjusted[i]; bestTokenId = i; }
+    }
+    return bestTokenId;
+}
+async function listOPFS() { const r = await navigator.storage.getDirectory(), out = []; for await (const [n, h] of r.entries()) if (h.kind === 'file') out.push(n + ' — ' + Math.round((await h.getFile()).size / 1024) + ' KB'); return out; }
+
+
+/* ============ 7. INFERENCE PROVIDERS — A: WebGPU in-browser (lazy, on the user's tap) | B: Localhost bridge | D: optional cloud ============ */
+/** The Claude artifact preview (claudeusercontent.com): no model can be downloaded there; Anthropic's own endpoint is reachable without a key. */
+const PREVIEW = /(^|\.)claudeusercontent\.com$/i.test(location.hostname);
+/** A framed page (iframe), the Claude preview, or a page with no storage cannot host the local brain: the user must open this file directly in a phone browser. */
+const ENV = (() => {
+  let framed = false; try { framed = window.self !== window.top; } catch (e) { framed = true; }
+  let store = true; try { void window.localStorage; } catch (e) { store = false; }
+  return { framed, store, file: location.protocol === 'file:', restricted: framed || PREVIEW || !store };
+})();
+const RESTRICTED_MSG = 'لتحميل العقل التوليدي، يرجى تنزيل هذا الملف HTML وفتحه مباشرة في متصفح هاتفك.';
+const cacheApiOK = async () => { try { if (typeof caches === 'undefined') return false; await caches.open('adli_probe'); return true; } catch (e) { return false; } };
+
+/* ---- the engine library is kept on the device, so the brain can start with no network at all ---- */
+const SPEC_RX = /(\bfrom\s*|\bimport\s*\(?\s*)(["'])((?:https?:\/\/|\/|\.\.?\/)[^"'\n]*)\2/g;
+const depsOf = (src, base) => { const out = new Set(); src.replace(SPEC_RX, (m, a, q, s) => { out.add(new URL(s, base).href); return m; }); return [...out]; };
+const LibStore = {
+  db: null,
+  open() { return this.db || (this.db = new Promise((res, rej) => { const q = indexedDB.open('adli_lib', 1); q.onupgradeneeded = () => q.result.createObjectStore('src'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); })); },
+  async get(k) { const db = await this.open(); return new Promise((res, rej) => { const q = db.transaction('src').objectStore('src').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+  async put(k, v) { const db = await this.open(); return new Promise((res, rej) => { const tx = db.transaction('src', 'readwrite'); tx.objectStore('src').put(v, k); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); },
+  /** Online, once: walk a module and its static imports and keep every source text. */
+  async keep(url, seen = new Set()) {
+    if (seen.has(url)) return; seen.add(url);
+    let src = await this.get(url);
+    if (src == null) { const r = await fetch(url); if (!r.ok) throw new Error('HTTP ' + r.status); src = await r.text(); await this.put(url, src); }
+    for (const d of depsOf(src, url)) await this.keep(d, seen);
+  },
+  /** Offline: rebuild the module as blob: URLs with every import rewritten, using only the stored copies. */
+  async bundle(url, seen = new Map(), depth = 0) {
+    if (seen.has(url)) { const v = seen.get(url); if (v === null) throw new Error('استيراد دائري'); return v; }
+    if (depth > 12) throw new Error('عمق استيراد مفرط');
+    seen.set(url, null);
+    const src = await this.get(url); if (src == null) throw new Error('لا نسخة مخزّنة');
+    const map = {}; for (const d of depsOf(src, url)) map[d] = await this.bundle(d, seen, depth + 1);
+    const out = src.replace(SPEC_RX, (m, a, q, s) => a + q + map[new URL(s, url).href] + q), blob = URL.createObjectURL(new Blob([out], { type: 'text/javascript' }));
+    seen.set(url, blob); return blob;
+  }
+};
+
+const Providers = {
+  cfg: { A: { engine: 'webllm', size: 'balanced', model: '', libUrl: '', tjsModel: 'onnx-community/Qwen2.5-1.5B-Instruct' }, B: { url: 'http://127.0.0.1:11434', style: 'ollama', model: 'qwen2.5:0.5b' }, D: { url: 'https://api.anthropic.com/v1/messages', model: 'claude-sonnet-5-5', key: '' } },
+  LIBS: { webllm: ['https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm', 'https://unpkg.com/@mlc-ai/web-llm?module', 'https://esm.run/@mlc-ai/web-llm', 'https://esm.sh/@mlc-ai/web-llm'], transformers: ['https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm', 'https://esm.sh/@huggingface/transformers@3'] },
+  breakers: { A: new CircuitBreaker(), B: new CircuitBreaker(), D: new CircuitBreaker() }, llm: null, loading: null, initBusy: false, prog: 0, meta: null, err: '', bOk: null, bAt: 0, P: { on: PREVIEW, state: 'idle', err: '' },
+  label(m) { return { AUTO: 'تلقائي', A: 'A · WebGPU محلي (' + (this.llm ? this.llm.kind : this.cfg.A.engine) + ')', B: 'B · جسر Localhost (' + this.cfg.B.style + ')', C: 'C · نواة رمزية حتمية', D: PREVIEW && !this.cfg.D.key ? 'D · Claude عبر المعاينة (خارجي)' : 'D · سحابة اختيارية' }[m] || m; },
+  /** Library import: the network first (jsDelivr, then the others); if that fails — or the phone is offline — the copy kept on the device. */
+  async importAny(urls, log) {
+    const errs = [], host = u => { try { return new URL(u, location.href).host || u; } catch (e) { return u; } };
+    const net = async () => {
+      for (const u of urls) {
+        try { log && log('جلب المكتبة من ' + host(u) + '…'); const m = await Promise.race([import(u), new Promise((_, rej) => setTimeout(() => rej(new Error('انتهت المهلة')), 25000))]); LibStore.keep(u).catch(() => { /* the copy is a bonus */ }); return m; }
+        catch (e) { errs.push(host(u) + ' ← ' + short(String((e && e.message) || e).replace(/^Failed to fetch dynamically imported module.*/, 'تعذّر الجلب (شبكة أو حجب أو CORS)'), 70)); }
+      }
+      return null;
+    };
+    const kept = async () => {
+      for (const u of urls) {
+        try { if ((await LibStore.get(u)) == null) continue; log && log('تشغيل المكتبة من النسخة المخزّنة على الجهاز…'); return await import(await LibStore.bundle(u)); }
+        catch (e) { errs.push('النسخة المخزّنة ← ' + short(String((e && e.message) || e), 70)); }
+      }
+      return null;
+    };
+    for (const f of navigator.onLine === false ? [kept, net] : [net, kept]) { const m = await f(); if (m) return m; }
+    throw new Error('تعذّر جلب المكتبة — ' + errs.join(' | '));
+  },
+  /** WebGPU adapter + whether shader-f16 exists (decides q4f16 vs q4f32 weights). */
+  async gpu() {
+    if (!navigator.gpu) return { ok: false, why: 'WebGPU غير متاح في هذا المتصفح' };
+    try {
+      if (!navigator.gpu.requestAdapter) return { ok: true, f16: true, maxBuf: 0 };
+      const a = await navigator.gpu.requestAdapter(); if (!a) return { ok: false, why: 'لا يوجد مهايئ WebGPU (قد يكون معطّلًا في إعدادات المتصفح أو غير مدعوم في هذا الجهاز)' };
+      return { ok: true, f16: !!(a.features && a.features.has('shader-f16')), maxBuf: (a.limits && a.limits.maxBufferSize) || 0 };
+    } catch (e) { return { ok: false, why: 'تعذّر فحص WebGPU: ' + ((e && e.message) || e) }; }
+  },
+  pickModel(ids, f16 = true) {
+    const A = this.cfg.A; if (A.model) return [A.model];
+    const q = f16 ? 'q4f16_1' : 'q4f32_1', names = A.size === 'small' ? ['Qwen2\\.5-0\\.5B-Instruct', 'Qwen3-0\\.6B', 'Llama-3\\.2-1B-Instruct'] : ['Qwen2\\.5-1\\.5B-Instruct', 'Llama-3\\.2-1B-Instruct', 'Qwen2\\.5-0\\.5B-Instruct'];
+    const out = [...new Set(names.map(n => ids.find(i => new RegExp(n + '-' + q).test(i) && !/-1k$/.test(i))).filter(Boolean))]; return out.length ? out : [ids[0]];
+  },
+  loadA(log) {
+    if (this.llm) return Promise.resolve(this.llm);
+    if (this.loading) return this.loading;
+    const A = this.cfg.A;
+    this.loading = (async () => {
+      try {
+        this.err = '';
+        if (A.engine === 'webllm') {
+          const g = await this.gpu(); if (!g.ok) throw new Error(g.why);
+          const lib = await this.importAny(A.libUrl ? [A.libUrl] : this.LIBS.webllm, log), W = lib.CreateMLCEngine ? lib : (lib.default || lib);
+          const ids = W.prebuiltAppConfig.model_list.map(m => m.model_id); $('#mlist').innerHTML = ids.map(i => `<option value="${esc(i)}">`).join('');
+          const appConfig = { ...W.prebuiltAppConfig, useIndexedDBCache: !(await cacheApiOK()) };
+          let eng = null, model = '', last = null;
+          for (const m of this.pickModel(ids, g.f16)) { try { this.prog = 0; log && log('تنزيل النموذج ' + m + '…', 0); eng = await W.CreateMLCEngine(m, { appConfig, initProgressCallback: r => log && log(r.text || '', r.progress) }); model = m; break; } catch (e) { last = e; } }
+          if (!eng) throw last || new Error('تعذّر إنشاء المحرك');
+          this.llm = { kind: 'webllm', model, async chat(messages, onTok) { let out = ''; const s = await eng.chat.completions.create({ messages, stream: true, temperature: 0.3, max_tokens: 600 }); for await (const ch of s) { const t = (ch.choices[0] && ch.choices[0].delta && ch.choices[0].delta.content) || ''; out += t; if (t && onTok) onTok(out); } return out; } };
+        } else {
+          const lib = await this.importAny(A.libUrl ? [A.libUrl] : this.LIBS.transformers, log), T = lib.pipeline ? lib : (lib.default || lib), dev = navigator.gpu ? 'webgpu' : 'wasm';
+          const gen = await T.pipeline('text-generation', A.tjsModel, { device: dev, dtype: 'q4', progress_callback: p => log && p.status && log(p.status + (p.file ? ' ' + p.file : ''), p.status === 'progress' ? (p.progress || 0) / 100 : undefined) });
+          this.llm = { kind: 'transformers.js/' + dev, model: A.tjsModel, async chat(messages) { const o = await gen(messages, { max_new_tokens: 320, do_sample: false, repetition_penalty: 1.2 }), g = o[0].generated_text; return Array.isArray(g) ? g[g.length - 1].content : String(g); } };
+        }
+        return this.llm;
+      } catch (e) { this.err = String((e && e.message) || e); throw e; }
+      finally { this.loading = null; }
+    })();
+    return this.loading;
+  },
+  /** The only entry point that downloads anything, and only from the user's tap: preferred engine first, then the other one. */
+  async loadBrain(log) {
+    if (ENV.restricted) throw new Error(RESTRICTED_MSG);
+    if (this.llm) return this.llm;
+    this.initBusy = true; this.prog = 0;
+    try { if (navigator.storage && navigator.storage.persist) Promise.resolve(navigator.storage.persist()).catch(() => { /* best effort */ }); } catch (e) { /* best effort */ }
+    const pref = this.cfg.A.engine, order = pref === 'webllm' ? ['webllm', 'transformers'] : ['transformers', 'webllm'], errs = [];
+    try {
+      for (const e of order) {
+        this.cfg.A.engine = e;
+        try { const l = await this.loadA(log); this.meta = { engine: l.kind, model: l.model, ts: Date.now() }; IO('DB_PUT', { store: 'settings', value: { key: 'brain', value: this.meta } }).catch(() => { /* flag is a convenience */ }); return l; }
+        catch (x) { errs.push(e + ': ' + x.message); }
+      }
+      this.cfg.A.engine = pref; this.err = errs.join(' || '); throw new Error(this.err);
+    } finally { this.initBusy = false; }
+  },
+  async probeB(force) {
+    if (!force && this.bAt && Date.now() - this.bAt < 30000) return this.bOk;
+    const c = this.cfg.B; let ok = false;
+    try { await fetchJson(c.url.replace(/\/+$/, '') + (c.style === 'ollama' ? '/api/tags' : '/v1/models'), {}, 1500); ok = true; } catch (e) { ok = false; }
+    this.bOk = ok; this.bAt = Date.now(); return ok;
+  },
+  async genB(messages) {
+    const c = this.cfg.B, base = c.url.replace(/\/+$/, ''), H = { 'Content-Type': 'application/json' };
+    if (c.style === 'ollama') { const r = await fetchJson(base + '/api/chat', { method: 'POST', headers: H, body: JSON.stringify({ model: c.model, messages, stream: false, options: { temperature: 0.3, repeat_penalty: 1.2 } }) }, 120000); return r.message.content; }
+    const r = await fetchJson(base + '/v1/chat/completions', { method: 'POST', headers: H, body: JSON.stringify({ model: c.model, messages, temperature: 0.3, max_tokens: 600 }) }, 120000); return r.choices[0].message.content;
+  },
+  /** Anthropic Messages format: system apart, first turn from the user, no empty turns, consecutive same-role turns merged. */
+  toApi(messages) {
+    const system = messages.filter(m => m.role === 'system').map(m => m.content).join('\n'), out = [];
+    for (const m of messages) {
+      const text = String(m.content || '').trim(); if (m.role === 'system' || !text) continue;
+      const role = m.role === 'assistant' ? 'assistant' : 'user';
+      if (!out.length && role !== 'user') continue;
+      if (out.length && out[out.length - 1].role === role) out[out.length - 1].content += '\n\n' + text; else out.push({ role, content: text });
+    }
+    return { system, messages: out };
+  },
+  previewReady() { return PREVIEW && this.P.on && navigator.onLine !== false && this.breakers.D.state !== 'OPEN'; },
+  async loadPrefs() { try { const r = await IO('DB_GET', { store: 'settings', key: 'pcloud' }); if (r && typeof r.value === 'boolean') this.P.on = PREVIEW && r.value; } catch (e) { /* the default stays */ } },
+  async genD(messages) {
+    const c = this.cfg.D, { system, messages: msgs } = this.toApi(messages), txt = r => (r.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    if (!c.key) {
+      if (!(PREVIEW && this.P.on)) throw new Error('يلزم مفتاح API وتأكيد الموافقة على الإرسال الخارجي');
+      try { const r = await fetchJson('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system, messages: msgs }) }, 60000), t = txt(r); if (!t.trim()) throw new Error('رد فارغ'); this.P.state = 'ok'; this.P.err = ''; return t; }
+      catch (e) { this.P.state = 'fail'; this.P.err = String((e && e.message) || e); throw e; }
+    }
+    if (!$('#cD_ok').checked) throw new Error('يلزم مفتاح API وتأكيد الموافقة على الإرسال الخارجي');
+    const r = await fetchJson(c.url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': c.key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify({ model: c.model, max_tokens: 700, system, messages: msgs }) }, 90000);
+    return txt(r);
+  },
+  call(mode, messages, onTok) { return this.breakers[mode].exec(async () => { if (mode === 'A') { if (!this.llm) throw new Error('العقل المحلي غير مهيّأ — اضغط «تنزيل وتهيئة العقل»'); return this.llm.chat(messages, onTok); } if (mode === 'B') return this.genB(messages); if (mode === 'D') return this.genD(messages); throw new Error('وضع غير مدعوم'); }); },
+  /** AUTO tries the localhost bridge, then the in-browser model if already initialised; a fixed mode uses only that engine. */
+  async generate(mode, messages, onTok) {
+    const order = mode === 'AUTO' ? ['B', 'A', 'D'] : [mode], errs = [];
+    for (const m of order) {
+      try {
+        if (mode === 'AUTO' && m === 'B' && !(await this.probeB())) throw new Error('الجسر المحلي غير متاح');
+        if (mode === 'AUTO' && m === 'A' && !this.llm) throw new Error('العقل المحلي غير مهيّأ');
+        if (mode === 'AUTO' && m === 'D' && !this.previewReady()) throw new Error('السحابة غير مفعّلة');
+        return { text: await this.call(m, messages, onTok), via: m };
+      } catch (e) { errs.push(m + ': ' + e.message); }
+    }
+    throw new Error(errs.join(' | ') || 'لا محرك متاح');
+  },
+  async available() { return !!this.llm || this.previewReady() || (await this.probeB()); },
+  statusText() { return this.llm ? `✓ العقل جاهز: ${this.llm.kind} · ${this.llm.model}` : (this.loading || this.initBusy) ? '⏳ جارٍ التهيئة…' : ENV.restricted ? '📱 ' + RESTRICTED_MSG : this.err ? '✗ ' + this.err : this.meta ? 'العقل مخزّن على هذا الجهاز — اضغط «تشغيل العقل»' : 'العقل التوليدي غير مهيّأ بعد'; }
+};
+
+/* ============ 8. STATE ============ */
+const S = { mode: 'AUTO', sessionId: null, web: true, learn: true, consent: false, bannerOff: false, rulesHash: '', rulesState: 'unsigned', busy: false, last: [] };
+let SESSIONS = [];
+const normDigits = s => NLP.toAscii(String(s)).replace(/(\d)[,٬](?=\d{3}(?!\d))/g, '$1');
+const plain = d => { const { _w, _s, ...r } = d; return r; };
+const prep = d => { d._w = NLP.content(d.payload); d._s = NLP.stems(d.payload); return d; };
+
+/* ============ 9. ROOM 3: hybrid memory (reference class + extensions) ============ */
+class LocalHybridMemoryEngine {
+    constructor(db) {
+        this.db = db;
+        this.CONTRADICTION_THRESHOLD = 0.85;
+    }
+
+    cosineSimilarity(vecA, vecB) {
+        if (!vecA || !vecB || vecA.length !== vecB.length) return 0;
+        let dot = 0, normA = 0, normB = 0;
+        for (let i = 0; i < vecA.length; i++) {
+            dot += vecA[i] * vecB[i];
+            normA += vecA[i] * vecA[i];
+            normB += vecB[i] * vecB[i];
+        }
+        return (normA === 0 || normB === 0) ? 0 : dot / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
+
+    computeHybridScore(memory, queryVector, lexicalOverlapScore, now = Date.now()) {
+        const cosineSim = queryVector ? this.cosineSimilarity(queryVector, memory.vector) : lexicalOverlapScore;
+        const daysSinceAccess = Math.max(0, (now - (memory.last_accessed || memory.timestamp)) / (1000 * 60 * 60 * 24));
+        const timeDecay = Math.exp(-0.05 * daysSinceAccess);
+        const freqWeight = Math.min(1, Math.log10((memory.access_count || 0) + 1));
+        return (cosineSim * 0.6) + (timeDecay * 0.2) + (freqWeight * 0.2);
+    }
+
+    pruneContextWindow(rankedMemories, maxTokens = 1200) {
+        let accumulatedTokens = 0;
+        const pruned = [];
+        for (const mem of rankedMemories) {
+            if (mem.governance?.is_tombstone) continue;
+            const estTokens = Math.ceil((mem.payload?.length || 0) * 0.25);
+            if (accumulatedTokens + estTokens > maxTokens) break;
+            pruned.push(`[MEM#${mem.id} | Session:${mem.sessionId}]: ${mem.payload}`);
+            accumulatedTokens += estTokens;
+        }
+        return pruned.join('\n');
+    }
+
+    /* --- extensions: contradiction detection and access recording --- */
+    jaccard(a, b) { const A = new Set(a), B = new Set(b); if (!A.size && !B.size) return 1; let i = 0; A.forEach(x => { if (B.has(x)) i++; }); return i / (A.size + B.size - i); }
+    detectContradiction(a, b) {
+        const NEG = ['لا', 'لم', 'لن', 'ليس', 'ليست', 'غير', 'بدون'], neg = ws => ws.some(w => NEG.includes(w));
+        const wa = NLP.words(a), wb = NLP.words(b), sa = NLP.stems(a), sb = NLP.stems(b), isNum = s => /^\d+$/.test(s);
+        if (this.jaccard(sa, sb) >= 0.6 && neg(wa) !== neg(wb)) return 'نفي مقابل إثبات';
+        const na = (NLP.toAscii(a).match(/\d+(?:\.\d+)?/g) || []).join(','), nb = (NLP.toAscii(b).match(/\d+(?:\.\d+)?/g) || []).join(',');
+        if (na && nb && na !== nb && this.jaccard(sa.filter(s => !isNum(s)), sb.filter(s => !isNum(s))) >= 0.5) return 'قيمة رقمية مختلفة';
+        const cut = ws => { const i = ws.findIndex(w => ['هو', 'هي', 'هم', 'هن', 'يساوي', 'تساوي'].includes(w)); return i > 0 && i < ws.length - 1 ? [ws.slice(0, i).join(' '), ws.slice(i + 1).join(' ')] : null; };
+        const pa = cut(wa), pb = cut(wb);
+        if (pa && pb && !neg(wa) && !neg(wb) && this.jaccard(NLP.stems(pa[0]), NLP.stems(pb[0])) >= 0.8 && this.jaccard(NLP.stems(pa[1]), NLP.stems(pb[1])) <= 0.2) return 'قيمة مختلفة لنفس الموضوع';
+        return null;
+    }
+    async recordAccess(mem) { mem.access_count = (mem.access_count || 0) + 1; mem.last_accessed = Date.now(); if (this.db) await this.db.put(plain(mem)); }
+}
+const ENGINE = new LocalHybridMemoryEngine({ put: v => IO('DB_PUT', { store: 'approved_knowledge', value: v }) });
+
+function bm25Scores(docs, qw) {
+  const N = docs.length, avg = docs.reduce((s, d) => s + d.length, 0) / (N || 1) || 1, df = new Map();
+  docs.forEach(d => new Set(d).forEach(t => df.set(t, (df.get(t) || 0) + 1)));
+  return docs.map(d => { const tf = new Map(); d.forEach(t => tf.set(t, (tf.get(t) || 0) + 1)); let s = 0;
+    for (const [t, w] of qw) { const f = tf.get(t) || 0; if (!f) continue; const n = df.get(t) || 0, idf = Math.log(1 + (N - n + 0.5) / (n + 0.5)); s += w * idf * (f * 2.5) / (f + 1.5 * (0.25 + 0.75 * d.length / avg)); }
+    return s; });
+}
+/** The five retrieval methods compared live in the vault tab. Each returns [{d, s}] aligned with docs. */
+const Retrieval = {
+  names: ['1 · تطابق تام', '2 · تقاطع كلمات', '3 · BM25 (TF-IDF)', '4 · جذر عربي + شبكة مرادفات', '5 · متجهي هجين 60/20/20'],
+  exact(q, docs) { const nq = NLP.words(q).join(' '); return docs.map(d => ({ d, s: nq && NLP.words(d.payload).join(' ').includes(nq) ? 1 : 0 })); },
+  overlap(q, docs) { const Q = [...new Set(NLP.content(q))]; return docs.map(d => ({ d, s: Q.length ? Q.filter(w => d._w.includes(w)).length / Q.length : 0 })); },
+  bm25(q, docs) { const sc = bm25Scores(docs.map(d => d._w), new Map(NLP.content(q).map(w => [w, 1]))); return docs.map((d, i) => ({ d, s: sc[i] })); },
+  root(q, docs) { const qw = new Map(); NLP.stems(q).forEach(s => { qw.set(s, 1); NLP.expand(s).forEach(x => { if (!qw.has(x)) qw.set(x, 0.7); }); }); const sc = bm25Scores(docs.map(d => d._s), qw); return docs.map((d, i) => ({ d, s: sc[i] })); },
+  hybrid(q, docs, now = Date.now()) { const qv = NLP.embed(q); return docs.map(d => ({ d, s: ENGINE.computeHybridScore(d, qv, 0, now), cos: ENGINE.cosineSimilarity(qv, d.vector) })); },
+  all(q, docs) { const keys = ['exact', 'overlap', 'bm25', 'root', 'hybrid']; return keys.map(k => { const t0 = performance.now(); let r = this[k](q, docs); r = k === 'hybrid' ? r.filter(x => x.cos >= 0.12) : r.filter(x => x.s > 0); r.sort((a, b) => b.s - a.s); return { k, r, ms: performance.now() - t0 }; }); }
+};
+/** Knowledge service over approved_knowledge (derived memory). Originals live forever in raw_messages. */
+const MEM = {
+  docs: [],
+  async load() { this.docs = (await IO('DB_ALL', { store: 'approved_knowledge' })).sort((a, b) => a.timestamp - b.timestamp); this.docs.forEach(prep); },
+  active() { return this.docs.filter(d => !(d.governance && d.governance.is_tombstone)); },
+  async add({ kind, category, title, text, sessionId }) {
+    const now = Date.now(), msgId = uid('m');
+    await IO('DB_ADD', { store: 'raw_messages', value: { id: msgId, sessionId, role: kind, text, ts: now, meta: { category, title } } });
+    const doc = prep({ id: uid('k'), sessionId, kind, category: category || 'عام', title: title || '', payload: text, vector: NLP.embed(text), timestamp: now, last_accessed: now, access_count: 0, governance: { is_tombstone: false }, source_msg_id: msgId });
+    const out = { id: doc.id, status: 'added', tombstoned: [] };
+    if (kind !== 'book') for (const old of this.active()) {
+      if (old.kind === 'book') continue;
+      const why = ENGINE.detectContradiction(text, old.payload);
+      if (why) { old.governance = { is_tombstone: true, tombstoned_at: now, reason: why, superseded_by: doc.id }; await IO('DB_PUT', { store: 'approved_knowledge', value: plain(old) }); out.tombstoned.push({ id: old.id, why }); }
+      else if (ENGINE.cosineSimilarity(doc.vector, old.vector) >= ENGINE.CONTRADICTION_THRESHOLD) { await ENGINE.recordAccess(old); return { id: old.id, status: 'duplicate', tombstoned: [] }; }
+    }
+    await IO('DB_PUT', { store: 'approved_knowledge', value: plain(doc) }); this.docs.push(doc); return out;
+  },
+  async restore(id) { const d = this.docs.find(x => x.id === id); if (!d) return; d.governance = { is_tombstone: false, restored_at: Date.now() }; await IO('DB_PUT', { store: 'approved_knowledge', value: plain(d) }); },
+  retrieve(q, k = 5) { const qv = NLP.embed(q), now = Date.now(); return this.active().map(d => ({ d, cos: ENGINE.cosineSimilarity(qv, d.vector), s: ENGINE.computeHybridScore(d, qv, 0, now) })).filter(x => x.cos >= 0.2).sort((a, b) => b.s - a.s).slice(0, k); },
+  async reindex() { const vs = await COG('EMBED_BATCH', { texts: this.docs.map(d => d.payload) }); for (let i = 0; i < this.docs.length; i++) { this.docs[i].vector = vs[i]; await IO('DB_PUT', { store: 'approved_knowledge', value: plain(this.docs[i]) }); } return vs.length; }
+};
+
+/* ============ 10. ROOM 4: sovereign crypto, rules fingerprint, cognitive traps ============ */
+class SessionKeyManager {
+    #ephemeralKey = null;
+    #keyTimeout = null;
+    SESSION_LIMIT_MS = 15 * 60 * 1000;
+
+    setKey(keyMaterial) { this.#ephemeralKey = keyMaterial; this._resetTimer(); }
+    getKey() {
+        if (!this.#ephemeralKey) throw new Error("انتهت صلاحية مفتاح الجلسة. أعد التوثيق.");
+        this._resetTimer();
+        return this.#ephemeralKey;
+    }
+    clearKey() { this.#ephemeralKey = null; if (this.#keyTimeout) clearTimeout(this.#keyTimeout); }
+    _resetTimer() {
+        if (this.#keyTimeout) clearTimeout(this.#keyTimeout);
+        this.#keyTimeout = setTimeout(() => { this.#ephemeralKey = null; }, this.SESSION_LIMIT_MS);
+    }
+    isUnlocked() { return this.#ephemeralKey !== null; }
+}
+
+class ADLICryptoEngine {
+    constructor() {
+        this.ALGORITHM = 'AES-GCM';
+        this.KEY_LENGTH = 256;
+        this.sessionManager = new SessionKeyManager();
+    }
+    async deriveLocalMasterKey(userSecret, iterations = 600000) {
+        const enc = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(userSecret), { name: "PBKDF2" }, false, ["deriveBits", "deriveKey"]);
+        const key = await crypto.subtle.deriveKey(
+            { name: "PBKDF2", salt: enc.encode("ADLI_SOVEREIGN_SALT"), iterations, hash: "SHA-384" },
+            keyMaterial, { name: this.ALGORITHM, length: this.KEY_LENGTH }, false, ["encrypt", "decrypt"]
+        );
+        this.sessionManager.setKey(key);
+        return key;
+    }
+    async computeSHA256(text) {
+        const data = new TextEncoder().encode(text);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    /* extensions: authenticated encryption of JSON records */
+    async encryptJSON(obj) { const iv = crypto.getRandomValues(new Uint8Array(12)), ct = await crypto.subtle.encrypt({ name: this.ALGORITHM, iv }, this.sessionManager.getKey(), new TextEncoder().encode(JSON.stringify(obj))); return { iv: b64(iv), ct: b64(new Uint8Array(ct)) }; }
+    async decryptJSON(pack) { const pt = await crypto.subtle.decrypt({ name: this.ALGORITHM, iv: unb64(pack.iv) }, this.sessionManager.getKey(), unb64(pack.ct)); return JSON.parse(new TextDecoder().decode(pt)); }
+}
+const CRYPTO = new ADLICryptoEngine();
+
+class LogicTrapdoorEngine {
+    constructor(domainRules = []) {
+        this.setRules(domainRules);
+    }
+    setRules(domainRules) {
+        this.rulesMap = new Map();
+        for (const rule of domainRules) {
+            const variable = rule.condition.variable;
+            if (!this.rulesMap.has(variable)) this.rulesMap.set(variable, []);
+            this.rulesMap.get(variable).push(rule);
+        }
+    }
+    evaluateDraft(draftObj, contextMeta = {}) {
+        const violations = [];
+        // O(1) lookup of mathematical / logical rules
+        for (const [key, val] of Object.entries(draftObj)) {
+            if (this.rulesMap.has(key)) {
+                for (const rule of this.rulesMap.get(key)) {
+                    if (this._checkOp(val, rule.condition.operator, rule.condition.threshold)) {
+                        const targetVal = draftObj[rule.constraint.target];
+                        if (targetVal !== undefined && targetVal > rule.constraint.max_allowed) {
+                            violations.push(rule.constraint.violation_msg);
+                        }
+                    }
+                }
+            }
+        }
+        // the four standard cognitive traps
+        if (contextMeta.expectedNumber !== undefined && !String(draftObj.answer || '').includes(String(contextMeta.expectedNumber))) {
+            violations.push(`TRAP-NUMERIC: الإجابة لم تتضمن الناتج الرياضي الحتمي (${contextMeta.expectedNumber}).`);
+        }
+        if (contextMeta.contradictsMemory) {
+            violations.push(`TRAP-CONTRADICTION: المسودة تتناقض مع حقيقة معتمدة في ذاكرة المستخدم.`);
+        }
+        if (contextMeta.unverifiedCitation) {
+            violations.push(`TRAP-SOURCE: المسودة تحتوي على استشهاد أو رابط غير موجود في المصادر المجلوبة.`);
+        }
+        if (!draftObj.answer || String(draftObj.answer).trim().length < 5) {
+            violations.push(`TRAP-QUALITY: الإجابة فارغة أو غير مكتملة.`);
+        }
+        return { isPassed: violations.length === 0, violations };
+    }
+    _checkOp(a, op, b) {
+        if (op === '<=') return a <= b;
+        if (op === '>=') return a >= b;
+        if (op === '<') return a < b;
+        if (op === '>') return a > b;
+        if (op === '==') return a === b;
+        return false;
+    }
+}
+const TRAP = new LogicTrapdoorEngine([]);
+const TRAP_CODES = ['TRAP-NUMERIC', 'TRAP-CONTRADICTION', 'TRAP-SOURCE', 'TRAP-QUALITY'];
+function trapReport(res) { const list = TRAP_CODES.map(c => ({ code: c, ok: !res.violations.some(v => v.startsWith(c)) })); list.push({ code: 'RULES', ok: !res.violations.some(v => !v.startsWith('TRAP-')) }); return { list, passed: list.filter(x => x.ok).length, total: list.length }; }
+function canonRules(rules) { return JSON.stringify(rules); }
+function validateRules(r) { if (!Array.isArray(r)) throw new Error('يجب أن تكون القواعد مصفوفة JSON'); r.forEach((x, i) => { if (!x.condition || !x.constraint || !x.condition.variable || !x.condition.operator || x.condition.threshold === undefined || !x.constraint.target || x.constraint.max_allowed === undefined) throw new Error('قاعدة غير مكتملة رقم ' + (i + 1)); }); return r; }
+
+/* ============ 11. WEB RESEARCH (CORS-safe, origin=*) ============ */
+const QWORDS = new Set('ابحث عن ويكيبيديا معلومات عرف تعريف اعطني اخبرني قل لي'.split(' ').map(NLP.fold));
+const Web = {
+  keywords(q) { return NLP.clean(q).split(/\s+/).filter(w => w && !NLP.stop.has(NLP.fold(w)) && !QWORDS.has(NLP.fold(w))).slice(0, 6).join(' '); },
+  clip(t) { t = t.replace(/\s+/g, ' ').trim(); const m = t.slice(0, 420), i = m.lastIndexOf('.'); return i > 150 ? m.slice(0, i + 1) : m; },
+  ctl: null, open: false,
+  /** Abort anything still in flight and mark the network as closed. */
+  close() { if (this.ctl) { try { this.ctl.abort(); } catch (e) { /* ignore */ } } this.ctl = null; this.open = false; },
+  async search(q, limit = 3) {
+    this.close(); this.ctl = new AbortController(); this.open = true; const sig = { signal: this.ctl.signal };
+    try {
+    const e = encodeURIComponent(this.keywords(q) || q);
+    const wp = l => `https://${l}.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${e}&gsrlimit=${limit}&prop=extracts|info&exintro=1&explaintext=1&exlimit=${limit}&inprop=url`;
+    const wd = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${e}&language=ar&uselang=ar&format=json&origin=*&limit=${limit}`;
+    const jobs = [['ويكيبيديا العربية', wp('ar'), 'wp'], ['Wikipedia English', wp('en'), 'wp'], ['Wikidata', wd, 'wd']];
+    const res = await Promise.allSettled(jobs.map(j => fetchJson(j[1], sig, 8000))), sources = [], status = [];
+    res.forEach((r, i) => {
+      const [name, , kind] = jobs[i]; if (r.status !== 'fulfilled') { status.push(`${name}: فشل (${r.reason && r.reason.message})`); return; }
+      let n = 0;
+      if (kind === 'wp') Object.values((r.value.query && r.value.query.pages) || {}).sort((a, b) => (a.index || 0) - (b.index || 0)).forEach(p => { if (p.extract) { sources.push({ origin: name, title: p.title, snippet: this.clip(p.extract), url: p.fullurl || '' }); n++; } });
+      else (r.value.search || []).forEach(x => { sources.push({ origin: name, title: x.label || x.id, snippet: (x.label || '') + (x.description ? ' — ' + x.description : ''), url: 'https://www.wikidata.org/wiki/' + x.id }); n++; });
+      status.push(`${name}: ${n}`);
+    });
+    if (res.every(r => r.status !== 'fulfilled')) throw new Error('لا اتصال بخدمات الويب');
+    sources.forEach((s, i) => { s.sid = 'SRC-' + (i + 1); });
+    return { sources, status };
+    } finally { this.close(); }
+  }
+};
+
+
+/* ============ 12. CONVERSATION BRAIN: person normalisation, small talk, learning, answer pipeline ============ */
+const VERBS = 'سكن|عمل|حب|فضل|ملك|درس|عيش|عرف|ريد|هتم|ستخدم|حتاج|تقن';
+const END = '(?=[\\s؟?!.,،؛:]|$)';
+const YV = 'ت(?:' + VERBS + ')', NOUNS = 'اسمك|عمرك|بلدك|مدينتك|وظيفتك|عملك|لغتك|لديك|عندك|بيتك|هاتفك|هوايتك|صديقك|عائلتك';
+const YOU = [
+  [new RegExp('^(و?)[اأ](' + VERBS + ')' + END), '$1أنت ت$2'],
+  [new RegExp('(^|\\s)(و?)[اأ](' + VERBS + ')' + END, 'g'), '$1$2ت$3'],
+  [new RegExp('(^|\\s)(?:أنا|انا)' + END, 'g'), '$1أنت'],
+  [new RegExp('(^|\\s)(و?)(اسمي|عمري|بلدي|مدينتي|وظيفتي|عملي|بيتي|هاتفي|لغتي|هوايتي|صديقي|عائلتي)' + END, 'g'), (m, a, w, x) => a + w + x.replace(/ي$/, 'ك')],
+  [new RegExp('(^|\\s)(و?)(لدي|عندي)' + END, 'g'), (m, a, w, x) => a + w + (x === 'لدي' ? 'لديك' : 'عندك')]
+];
+/** First person -> second person, so stored facts read naturally ("اسمي علي" -> "اسمك علي") and questions match them. */
+const toYou = t => YOU.reduce((s, [r, v]) => s.replace(r, v), String(t));
+const Q_START = /^(هل|ما|ماذا|من|متى|اين|كيف|لماذا|كم|اي|ايهم|احسب|اكتب|اشرح|ابحث|عرف|اعطني|قل|ترجم|لخص|اخبرني|حدثني|ساعدني|اريد|ارجو)(\s|$)/;
+const RESEARCH_RX = /(ابحث|ويكيبيديا|من هو|من هي|من هم|ما عاصمة|متى |عرّف|تعريف|كم عدد)/;
+const FACT_Q = /^(ما|ماذا|من|متى|اين|كم|كيف|لماذا|اشرح|عرف)(\s|$)/;
+const CHAT_RX = /^\s*(مرحبا|مرحبًا|اهلا|أهلا|أهلًا|السلام عليكم|صباح الخير|مساء الخير|شكرا|شكرًا|هلا)/;
+const PERSONA = 'أنت ADLI، مساعد سيادي يعمل على جهاز المستخدم. تحدّث بالعربية الفصحى المبسطة بلطف ووضوح وإيجاز. استند إلى المعلومات المحفوظة والمصادر المرفقة إن وُجدت، وإلا فأجب من معرفتك العامة واعترف إن لم تكن متأكدًا. لا تخترع روابط أو أرقامًا. استشهد بالمصادر بصيغة [SRC-n] عند استخدامها. إن تعارض كلامك مع معلومة محفوظة فاعتمد المحفوظة.';
+const NOUNS_RX = new RegExp('^(?:' + NOUNS + ')(?=\\s)');
+const SPLIT_RX = new RegExp('\\s+و(?=(?:' + YV + '|' + NOUNS + ')' + END + ')'), LEAD_RX = new RegExp('^و?(' + YV + ')' + END);
+/** Declarative statements worth remembering, split into atomic facts: not questions, not commands, not arithmetic, at least two content words. */
+function extractFacts(text) {
+  const out = [];
+  for (const c of String(text).match(/[^.!؟?\n؛،,]+[.!؟?\n؛،,]*/g) || []) {
+    if (/[؟?]/.test(c)) continue;
+    for (let s of toYou(c.replace(/[.!؟?\n؛،,]+$/, '').trim()).split(SPLIT_RX)) {
+      s = s.replace(LEAD_RX, 'أنت $1').replace(/^و(?=أنت)/, '').trim();
+      const f = NLP.fold(s);
+      if (s.length >= 8 && (NLP.content(s).length >= 2 || NOUNS_RX.test(s)) && !Q_START.test(f) && !CHAT_RX.test(s) && !SYM.extractExpr(s) && !/^\d+$/.test(f)) out.push(s);
+    }
+  }
+  return out.slice(0, 4);
+}
+function smallTalk(q) {
+  const f = NLP.fold(q).replace(/[؟?!.,،]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (/^(مرحبا|اهلا|السلام عليكم|هلا|صباح الخير|مساء الخير|هاي|هلو)( |$)/.test(f)) return 'أهلًا بك! كيف أستطيع مساعدتك اليوم؟';
+  if (/^(شكرا|مشكور|تسلم|يعطيك العافيه)( |$)/.test(f)) return 'عفوًا، يسعدني ذلك. هل من شيء آخر؟';
+  if (/(كيف حالك|كيف الحال|شلونك|اخبارك|كيفك)/.test(f)) return 'بخير والحمد لله، شكرًا لسؤالك! كيف أستطيع مساعدتك؟';
+  if (/(^| )(من انت|ما اسمك|عرفني بنفسك|من تكون)( |$)/.test(f)) return 'أنا ADLI، عقل سيادي يعمل على جهازك: أحسب وأستنتج وأتذكر ما تخبرني به، وأبحث في الويب عند الحاجة، وأتحقق من إجابتي قبل أن أعرضها.';
+  if (/(ماذا تستطيع|ماذا تفعل|ما قدراتك|بماذا تساعد|كيف تعمل)/.test(f)) return 'أستطيع الحساب والاستنتاج المنطقي، وتذكّر ما تخبرني به (اسمك ومعلوماتك وملاحظاتك)، والبحث في ويكيبيديا عند الحاجة، ثم التحقق من إجابتي قبل عرضها.';
+  if (/(ماذا تعرف عني|ماذا تتذكر|ماذا تعلمت|ما الذي تعرفه)/.test(f)) { const u = MEM.active().filter(d => d.category === 'المحادثة').slice(-8); return u.length ? 'هذا ما أتذكره عنك:\n• ' + u.map(d => d.payload).join('\n• ') : 'لم أتعلم عنك شيئًا بعد. أخبرني عن نفسك وسأتذكر.'; }
+  return null;
+}
+/* single-valued properties (name, residence, job…): a DIFFERENT value supersedes the old one (old record gets a Tombstone); repeating the stored value, even with extra words, is not a contradiction */
+const SINGLE = ['اسمك', 'عمرك', 'تسكن', 'تعيش', 'تعمل', 'بلدك', 'مدينتك', 'وظيفتك', 'عملك', 'لغتك'];
+const _baseContradiction = ENGINE.detectContradiction.bind(ENGINE);
+ENGINE.detectContradiction = (a, b) => _baseContradiction(a, b) || (() => {
+  const wa = NLP.words(a), wb = NLP.words(b), k = SINGLE.find(s => wa.includes(s) && wb.includes(s)); if (!k) return null;
+  const rest = ws => { const r = ws.filter(w => w !== k), s = new Set(NLP.stems(r.join(' '))); return s.size ? s : new Set(r.filter(w => w.length > 1 && w !== 'انت')); };
+  const A = rest(wa), B = rest(wb), sub = (x, y) => [...x].every(v => y.has(v));
+  return A.size && B.size && !sub(A, B) && !sub(B, A) ? 'قيمة جديدة لخاصية وحيدة القيمة' : null;
+})();
+
+function draftObj(d, ctx) {
+  const ans = normDigits(d.answer), cites = (ans.match(/\[SRC-\d+\]/g) || []).length, res = d.kind === 'research' ? 1 : 0;
+  return { answer: ans, answer_chars: ans.length, confidence: d.conf, is_research: res, sources_count: cites, missing_sources: res && !cites ? 1 : 0, cloud_used: d.via === 'D' ? 1 : 0, unstamped_external: d.via === 'D' && !ans.includes('[مصدر خارجي]') ? 1 : 0, unsourced_claims: d.via !== 'C' && !ctx.mems.length && !ctx.sources.length && !cites ? 1 : 0 };
+}
+function trapContext(d, ctx) {
+  const ans = normDigits(d.answer), ids = new Set(ctx.sources.map(s => s.sid)), urls = new Set(ctx.sources.map(s => s.url));
+  const badCite = [...ans.matchAll(/\[(SRC-\d+)\]/g)].some(m => !ids.has(m[1]));
+  const badUrl = (ans.match(/https?:\/\/[^\s)\]،]+/g) || []).some(u => !urls.has(u.replace(/[.,;]+$/, '')));
+  const sents = ans.split(/[.؟!\n]+/).filter(s => s.trim().length > 3);
+  const contradicts = d.kind !== 'math' && ctx.mems.some(m => m.d.kind !== 'book' && sents.some(s => ENGINE.detectContradiction(s, m.d.payload)));
+  const ev = ctx.sym && ctx.sym.value !== undefined && isFinite(ctx.sym.value) ? fmtNum(ctx.sym.value) : undefined;
+  return { expectedNumber: ev, contradictsMemory: contradicts, unverifiedCitation: badCite || badUrl };
+}
+const evalDraft = (d, ctx, engine = TRAP) => engine.evaluateDraft(draftObj(d, ctx), trapContext(d, ctx));
+function deterministicDraft({ sym, mems, sources, ack }) {
+  if (sym) return { answer: sym.answer, kind: sym.type, via: 'C', conf: sym.error ? 0.5 : 1 };
+  if (ack) return { answer: 'حسنًا، سأتذكر: ' + ack.join('، ') + '.', kind: 'chat', via: 'C', conf: 0.9 };
+  if (mems.length && (mems[0].cos >= 0.3 || !sources.length)) return { answer: 'بحسب ما أتذكره:\n• ' + mems.slice(0, 3).map(m => m.d.payload).join('\n• '), kind: 'memory', via: 'C', conf: Math.min(0.95, mems[0].cos + 0.3) };
+  if (sources.length) return { answer: sources.slice(0, 2).map(s => `${s.snippet} [${s.sid}]`).join('\n') + '\nالمصادر:\n' + sources.slice(0, 3).map(s => `[${s.sid}] ${s.title} — ${s.url}`).join('\n'), kind: 'research', via: 'C', conf: 0.7 };
+  const hint = [!Providers.llm ? (PREVIEW ? (Providers.P.on ? 'تعذّر الوصول إلى Claude الآن، أعد المحاولة بعد قليل.' : 'يمكنك تفعيل Claude من الشريط أسفل الدردشة.') : 'لتحدّثني بطلاقة نزّل العقل المحلي من الإعدادات.') : '', !S.web ? 'ويمكنك تفعيل البحث في الويب.' : ''].filter(Boolean).join(' ');
+  return { answer: 'لا أملك معلومة كافية عن هذا بعد. أخبرني به وسأتذكره، أو اسألني سؤالًا آخر. ' + hint, kind: 'unknown', via: 'C', conf: 0.2 };
+}
+function buildMessages(q, mems, sources, hist = []) {
+  const ctx = ENGINE.pruneContextWindow(mems.map(m => m.d), 1200), src = sources.map(s => `[${s.sid}] ${s.title}: ${s.snippet} (${s.url})`).join('\n');
+  return [{ role: 'system', content: PERSONA }, ...hist.slice(-6), { role: 'user', content: `${ctx ? 'معلومات محفوظة:\n' + ctx + '\n\n' : ''}${src ? 'مصادر من الويب:\n' + src + '\n\n' : ''}${q}` }];
+}
+async function repairDraft(d, viol, ctx) {
+  let ans = d.answer, kind = d.kind;
+  if (d.via !== 'C' && !d.retried) {
+    try { const msgs = buildMessages(ctx.question, ctx.mems, ctx.sources); msgs.push({ role: 'user', content: 'المسودة السابقة خالفت القواعد: ' + viol.join(' | ') + '\nأعد الكتابة وفق القواعد.' }); const t = await Providers.call(d.via, msgs); return { ...d, answer: d.via === 'D' && !t.includes('[مصدر خارجي]') ? '[مصدر خارجي] ' + t : t, retried: true }; } catch (e) { /* fall through to deterministic repair */ }
+  }
+  for (const v of viol) {
+    if (v.startsWith('TRAP-NUMERIC') && ctx.sym && ctx.sym.value !== undefined) ans = ans.replace(/\s*\(الناتج المحسوب:[^)]*\)/, '') + ` (الناتج المحسوب: ${fmtNum(ctx.sym.value)})`;
+    else if (v.startsWith('TRAP-SOURCE')) { const ids = new Set(ctx.sources.map(s => s.sid)), urls = new Set(ctx.sources.map(s => s.url)); ans = ans.replace(/\[(SRC-\d+)\]/g, (m, id) => (ids.has(id) ? m : '')).replace(/https?:\/\/[^\s)\]،]+/g, u => (urls.has(u.replace(/[.,;]+$/, '')) ? u : '[رابط محذوف]')); }
+    else if (v.startsWith('TRAP-CONTRADICTION')) ans = 'تنبيه: كلامي السابق يتعارض مع معلومة معتمدة في ذاكرتك، فاعتمدتُ المحفوظ:\n• ' + ctx.mems.slice(0, 2).map(m => m.d.payload).join('\n• ');
+    else if (v.startsWith('TRAP-QUALITY')) ans = 'لم أتمكن من توليد إجابة مكتملة. أعد صياغة السؤال أو أضف معلومة إلى الخزنة.';
+    else if (v.startsWith('RULE-R3')) ans = '[مصدر خارجي] ' + ans;
+    else if (v.startsWith('RULE-R2')) { ans = 'لم أجد مصدرًا موثّقًا يدعم هذه الإجابة، لذا لا أجزم بها.'; kind = 'unknown'; }
+    else if (v.startsWith('RULE-R1')) ans = 'ثقتي منخفضة ولا مصدر يدعم الإجابة؛ لن أجزم بها.';
+    else if (v.startsWith('RULE-R4')) ans = short(ans, 3500);
+  }
+  return { ...d, answer: ans, kind, conf: Math.max(d.conf, 0.5) };
+}
+/** Self-correction loop guarded by a circuit breaker: at most max-1 repairs, then it trips OPEN and stops. */
+async function correctionLoop(draft, evaluate, repair, max = 4) {
+  const br = new CircuitBreaker({ failureThreshold: max, cooldownMs: 60000 }); let attempts = 0, res;
+  for (;;) { res = evaluate(draft); if (res.isPassed) return { draft, res, attempts, tripped: false }; br.onFailure(); if (br.state === 'OPEN') return { draft, res, attempts, tripped: true }; attempts++; draft = await repair(draft, res.violations); }
+}
+const rcptHTML = r => `<div class="rcpt"><b>شهادة السيادة</b> · المحرك: ${esc(r.engine)} · الإنترنت: ${r.online ? 'متصل' : 'غير متصل'} · الشبكة: ${({ none: 'لم تُستخدم', closed: 'استُخدمت ثم أُغلقت', offline: 'دون اتصال' })[r.net] || 'لم تُستخدم'} · الذكريات: ${r.memories} · المصادر: ${r.sources} · المصائد المجتازة: ${r.traps} · الزمن: ${Math.round(r.ms)} ms${r.corrections ? ' · تصحيحات: ' + r.corrections : ''}${r.fallback ? ' · رجوع احتياطي' : ''}${r.external ? ' · [مصدر خارجي]' : ''}${r.breaker ? ' · قاطع التيار: فُعّل' : ''}</div>`;
+const detailsHTML = (steps, R, learned) => `<div class="tags">${learned.length ? `<span>💾 تعلّمتُ ${learned.length}</span>` : ''}${R.sources ? `<span>🌐 ${R.sources} مصدر</span>` : ''}${R.external ? '<span>[مصدر خارجي]</span>' : ''}</div><details class="why"><summary>كيف توصّلتُ إلى هذا؟</summary><div class="steps">${steps.map(([t, c]) => `<div class="ln ${c}">${esc(t)}</div>`).join('')}</div>${learned.length ? `<div class="sm">تعلّمتُ:<br>• ${learned.map(esc).join('<br>• ')}</div>` : ''}${rcptHTML(R)}</details>`;
+
+/** Learning: user facts (rules), web notes (with provenance) and, when a language brain is available, an LLM extraction pass. Contradictions become Tombstones inside MEM.add. */
+async function learnFromTurn({ question, text, sources, kind, via }) {
+  const out = [], seen = new Set();
+  const add = async (t, cat, k = 'fact', title = '') => { t = String(t).trim(); if (t.length < 6 || seen.has(t)) return; seen.add(t); const r = await MEM.add({ kind: k, category: cat, title, text: t, sessionId: S.sessionId }); if (r.status === 'added') out.push(t); };
+  for (const f of extractFacts(question)) await add(f, 'المحادثة');
+  if (kind === 'research') for (const s of sources.slice(0, 2)) await add(`${s.snippet} — ${s.origin}`, 'ويب', 'note', `${s.title} | ${s.url}`);
+  if (via !== 'C' && via !== 'D' && NLP.content(question).length >= 6) {
+    try {
+      const g = await Providers.generate(S.mode === 'D' ? 'AUTO' : S.mode, [{ role: 'system', content: 'استخرج من الحوار حقائق ثابتة قصيرة تستحق التذكر (عن المستخدم أو معلومات صحيحة). اكتب كل حقيقة جملة قصيرة بصيغة المخاطب إن كانت عن المستخدم (أنت ...). أجب بمصفوفة JSON من النصوص فقط، أو [] إن لم توجد.' }, { role: 'user', content: `المستخدم: ${question}\nالمساعد: ${short(text, 500)}` }]);
+      const m = g.text.match(/\[[\s\S]*\]/); if (m) for (const f of JSON.parse(m[0]).slice(0, 4)) if (typeof f === 'string' && f.length < 200) await add(toYou(f), 'المحادثة');
+    } catch (e) { /* the extraction pass is optional */ }
+  }
+  return out;
+}
+
+async function askADLI(question) {
+  question = String(question || '').trim(); if (S.busy || !question) return null;
+  S.busy = true; UI.busy(true); UI.addUser(question); UI.think(true);
+  const t0 = performance.now(), sid = S.sessionId, online = navigator.onLine, steps = [], hist = HIST.slice(0, -1);
+  const R = { engine: Providers.label('C'), online, net: 'none', memories: 0, sources: 0, traps: '0/0', ms: 0, corrections: 0, external: false, breaker: false, fallback: false };
+  const step = async (txt, cls = '') => { steps.push([txt, cls]); UI.status(txt); try { await COG('PUSH_SCRATCH', { sessionId: sid, text: txt }); await IO('DB_PUT', { store: 'scratchpad_store', value: { id: uid('pad'), sessionId: sid, text: txt, ts: Date.now() } }); } catch (e) { /* scratchpad is best-effort */ } };
+  let out = null, learned = [], handle = null;
+  try {
+    await IO('DB_ADD', { store: 'raw_messages', value: { id: uid('m'), sessionId: sid, role: 'user', text: question, ts: Date.now() } });
+    await UI.maybeTitle(sid, question);
+    const qn = toYou(question);
+    await step('أفهم السؤال: ' + short(NLP.stems(qn).join(' '), 60));
+    const qs = new Set(NLP.stems(qn)), qc = new Set([...qs].flatMap(s => NLP.conceptsOf(s))), share = d => (d._s || NLP.stems(d.payload)).some(s => qs.has(s) || NLP.conceptsOf(s).some(c => qc.has(c)));
+    const talk = smallTalk(question), mems = talk ? [] : MEM.retrieve(qn, 5).filter(m => share(m.d)); R.memories = mems.length; // a hit with no shared stem or concept is hash noise: never shown, never sent out
+    await step(`أستحضر من الذاكرة (60% تشابه + 20% حداثة + 20% تكرار): ${mems.length}`, mems.length ? 'ok' : '');
+    const sym = talk ? null : await COG('SOLVE', { question, facts: MEM.active().filter(d => d.kind !== 'book').map(d => d.payload) });
+    if (sym) await step(`المحرك الرمزي [${sym.type}] حسم المسألة`, sym.error ? 'bad' : 'ok');
+    const facts = extractFacts(question), declarative = facts.length > 0 && !/[؟?]/.test(question) && !Q_START.test(NLP.fold(qn));
+    let sources = [];
+    if (!talk && !sym && S.web && !declarative && NLP.content(qn).length >= 2 && (RESEARCH_RX.test(qn) || (FACT_Q.test(NLP.fold(qn)) && (!mems.length || mems[0].cos < 0.3)))) {
+      if (!online) { R.net = 'offline'; await step('الويب: لا اتصال — أكتفي بالعقل المحلي والذاكرة', 'warn'); }
+      else { await step('🌐 أفتح اتصالًا بالويب لجلب معلومة…'); try { const w = await Web.search(qn); sources = w.sources; await step(`جلبتُ ${sources.length} مصدرًا (${w.status.join(' | ')}) ثم أغلقتُ الاتصال ✓`, sources.length ? 'ok' : 'warn'); } catch (e) { await step('الويب: تعذّر الوصول — ' + e.message, 'warn'); } Web.close(); R.net = 'closed'; }
+    }
+    R.sources = sources.length;
+    let draft = talk ? { answer: talk, kind: 'chat', via: 'C', conf: 0.95 } : null;
+    if (!draft && !sym && S.mode !== 'C' && (S.mode !== 'AUTO' || await Providers.available())) {
+      try {
+        await step('أصوغ المسودة بالعقل اللغوي…');
+        const g = await Providers.generate(S.mode, buildMessages(question, mems, sources, hist), p => UI.status('…' + short(p.slice(-60), 60)));
+        draft = { answer: g.via === 'D' ? '[مصدر خارجي] ' + g.text : g.text, kind: /\[SRC-\d+\]/.test(g.text) ? 'research' : mems.length ? 'memory' : 'chat', via: g.via, conf: mems.length || sources.length ? 0.65 : 0.4 };
+        R.engine = Providers.label(g.via); R.external = g.via === 'D';
+      } catch (e) { R.fallback = true; await step('تعذّر العقل اللغوي (' + short(e.message, 90) + ') — أستخدم النواة الحتمية', 'bad'); }
+    }
+    if (!draft) draft = deterministicDraft({ sym, mems, sources, ack: declarative && S.learn ? facts : null });
+    const ctx = { question, mems, sources, sym };
+    const trail = [], evaluate = d => { const r = evalDraft(d, ctx); if (!r.isPassed) trail.push(r.violations.join(' | ')); return r; };
+    const loop = await correctionLoop(draft, evaluate, (d, v) => repairDraft(d, v, ctx));
+    R.corrections = loop.attempts;
+    for (const t of trail) await step('تصحيح ذاتي ← مخالفة: ' + short(t, 140), 'warn');
+    if (loop.tripped) { R.breaker = true; loop.draft = { answer: 'أوقف قاطع التيار التصحيح الذاتي بعد محاولات متكررة، ولا أستطيع الجزم بإجابة موثوقة. أعد صياغة السؤال.', kind: 'unknown', via: 'C', conf: 0.5 }; await step('قاطع التيار: OPEN — توقف التصحيح الذاتي', 'bad'); }
+    const rep = trapReport(evaluate(loop.draft));
+    for (const t of rep.list) await step(`${t.ok ? '✓' : '✗'} ${t.code}`, t.ok ? 'ok' : 'bad');
+    R.traps = `${rep.passed}/${rep.total}`; R.ms = performance.now() - t0;
+    const text = loop.draft.answer;
+    await IO('DB_ADD', { store: 'raw_messages', value: { id: uid('m'), sessionId: sid, role: 'assistant', text, ts: Date.now(), meta: { receipt: R } } });
+    await IO('DB_PUT', { store: 'episodes', value: { id: uid('e'), sessionId: sid, ts: Date.now(), q: question, a: short(text, 300), kind: loop.draft.kind, receipt: R } });
+    for (const m of mems) await ENGINE.recordAccess(m.d);
+    UI.think(false); handle = await UI.say(text);
+    if (S.learn && !loop.tripped) { await step('أستخلص الحقائق وأحفظها في الذاكرة…'); learned = await learnFromTurn({ question: qn, text, sources, kind: loop.draft.kind, via: loop.draft.via }); await step(learned.length ? `تعلّمتُ ${learned.length} معلومة جديدة ✓` : 'لا جديد يستحق الحفظ', learned.length ? 'ok' : ''); }
+    out = { text, receipt: R, learned };
+  } catch (e) { UI.think(false); await UI.say('تعذّر إكمال الإجابة: ' + ((e && e.message) || e)); }
+  finally {
+    try { await selfDestruct(); steps.push(['مُسحت المسودة والـRAM المؤقتة ✓', 'ok']); if (handle) handle.attach(detailsHTML(steps, R, learned)); } catch (e) { /* ignore */ }
+    UI.think(false); S.busy = false; UI.busy(false); UI.banner();
+  }
+  return out;
+}
+
+/* ============ 13. SETTINGS, SESSIONS, RULES, STATUS, FPS ============ */
+const saveSetting = (key, value) => IO('DB_PUT', { store: 'settings', value: { key, value } }).catch(() => {});
+const persistCfg = () => saveSetting('cfg', { A: Providers.cfg.A, B: Providers.cfg.B, D: { url: Providers.cfg.D.url, model: Providers.cfg.D.model } });
+async function loadSettings() { const m = Object.fromEntries((await IO('DB_ALL', { store: 'settings' })).map(r => [r.key, r.value])); if (m.mode) S.mode = m.mode; if (m.web !== undefined) S.web = m.web; if (m.learn !== undefined) S.learn = m.learn; if (m.consent) S.consent = true; if (m.brain) Providers.meta = m.brain; if (m.cfg) for (const k of ['A', 'B', 'D']) Object.assign(Providers.cfg[k], m.cfg[k] || {}); }
+async function loadLexicon() { const rows = await IO('DB_ALL', { store: 'lexicon' }); if (rows.length) { rows.forEach(r => NLP.addGroup(r.words)); await COG('SET_LEXICON', { groups: rows.map(r => r.words) }); } }
+async function newSession(silent) { const s = { id: uid('s'), title: 'محادثة جديدة', ts: Date.now() }; await IO('DB_PUT', { store: 'sessions', value: s }); SESSIONS.push(s); S.sessionId = s.id; if (!silent) { UI.renderSessions(); await UI.loadChat(); } }
+async function initSessions() { SESSIONS = (await IO('DB_ALL', { store: 'sessions' })).sort((a, b) => a.ts - b.ts); if (!SESSIONS.length) await newSession(true); S.sessionId = SESSIONS[SESSIONS.length - 1].id; }
+function updChips() {
+  const o = navigator.onLine, n = $('#netChip'); n.textContent = o ? '● Online' : '○ Offline'; n.className = 'chip ' + (o ? 'ok' : 'wr');
+  const h = $('#shaChip'); h.textContent = S.rulesState === 'verified' ? 'SHA-256 ✓ ' + S.rulesHash.slice(0, 8) : S.rulesState === 'tampered' ? '⚠ بصمة القواعد لا تطابق' : 'قواعد غير موقّعة'; h.className = 'chip ' + (S.rulesState === 'verified' ? 'ok' : S.rulesState === 'tampered' ? 'bad' : 'wr');
+  $('#sideNet').textContent = (o ? '● متصل' : '○ دون اتصال') + ' · ' + (S.rulesState === 'verified' ? 'القواعد موقّعة ✓' : 'القواعد: ' + S.rulesState);
+}
+async function applyRules(text) { const rules = validateRules(JSON.parse(text)), hash = await CRYPTO.computeSHA256(canonRules(rules)); TRAP.setRules(rules); await IO('DB_PUT', { store: 'rules_vault', value: { id: 'active', rules, sha256: hash, ts: Date.now() } }); S.rulesHash = hash; S.rulesState = 'verified'; updChips(); return hash; }
+async function loadRules() { const row = await IO('DB_GET', { store: 'rules_vault', key: 'active' }); if (!row) { await applyRules(JSON.stringify(DEFAULT_RULES)); return; } const h = await CRYPTO.computeSHA256(canonRules(row.rules)); TRAP.setRules(row.rules); S.rulesHash = row.sha256; S.rulesState = h === row.sha256 ? 'verified' : 'tampered'; updChips(); }
+const FPS = {
+  on: false, dts: [], last: 0, raf: 0, avg: 0,
+  stats(a = this.dts) { if (!a.length) return { avg: 0, min: 0, drops: 0 }; const mean = a.reduce((x, y) => x + y, 0) / a.length; return { avg: 1000 / mean, min: 1000 / Math.max(...a), drops: a.filter(d => d > 25).length }; },
+  start() { if (this.on) return; this.on = true; this.last = performance.now(); let t0 = this.last; const loop = t => { if (!this.on) return; const dt = t - this.last; this.last = t; if (dt > 0 && dt < 1000) { this.dts.push(dt); if (this.dts.length > 120) this.dts.shift(); } if (t - t0 >= 500) { t0 = t; if (!$('#ovl').hidden) this.paint(); } this.raf = requestAnimationFrame(loop); }; this.raf = requestAnimationFrame(loop); },
+  paint() { const s = this.stats(); this.avg = s.avg; const b = $('#fpsBtn'); b.textContent = 'FPS ' + s.avg.toFixed(0); b.className = 'chip ' + (s.avg >= 55 ? 'ok' : s.avg >= 30 ? 'wr' : 'bad'); $('#fpsTxt').textContent = `متوسط ${s.avg.toFixed(1)} · أدنى ${s.min.toFixed(1)} · إطارات متأخرة ${s.drops}/${this.dts.length}`; const cv = $('#fpsCv').getContext('2d'); cv.clearRect(0, 0, 260, 40); cv.fillStyle = '#d9a63e'; this.dts.slice(-60).forEach((d, i) => { const h = Math.min(40, d * 1.6); cv.fillRect(i * 4.3, 40 - h, 3, h); }); },
+  measure(total) { return new Promise(res => { const a = []; let last = performance.now(); const t0 = last; const f = t => { a.push(t - last); last = t; if (t - t0 >= total) res(this.stats(a.slice(1))); else requestAnimationFrame(f); }; requestAnimationFrame(f); }); }
+};
+async function forgetMemory(id) { const d = MEM.docs.find(x => x.id === id); if (!d) return; d.governance = { is_tombstone: true, tombstoned_at: Date.now(), reason: 'نسيان يدوي' }; await IO('DB_PUT', { store: 'approved_knowledge', value: plain(d) }); }
+
+/* ============ 14. UI: a calm chat on the surface, the whole engine room behind the sidebar ============ */
+const DEMO = ['عاصمة اليابان هي طوكيو', 'أحمد أطول من علي', 'علي أطول من سعيد', 'كل طائر حيوان', 'كل حيوان كائن', 'اشترى خالد سيارة جديدة من المعرض', 'أحمد يدخن'];
+const SUGGEST = ['كم ناتج 12 ضرب 7 زائد 3؟', 'اسمي عادل وأسكن في الرياض', 'ما اسمي وأين أسكن؟', 'ما عاصمة اليابان؟'];
+const TITLES = { t6: 'الإعدادات والمحرك', t2: 'الذاكرة والمعرفة', t3: 'البحث في الويب', t4: 'المصائد والتشفير', t5: 'مختبر القياس' };
+let HIST = [];
+const UI = {
+  busy(b) { $('#send').disabled = b; $('#q').disabled = b; },
+  scroll() { const s = $('#scroller'); s.scrollTop = s.scrollHeight; },
+  empty() { $('#empty').hidden = $('#chat').children.length > 0; },
+  addUser(text) { HIST.push({ role: 'user', content: text }); const d = document.createElement('div'), b = document.createElement('div'); d.className = 'm u'; b.className = 'b'; b.textContent = text; d.appendChild(b); $('#chat').appendChild(d); this.empty(); this.scroll(); },
+  think(on) { let t = $('#typing'); if (!on) { if (t) t.remove(); return; } if (!t) { t = document.createElement('div'); t.id = 'typing'; t.className = 'm a'; t.innerHTML = '<span class="dots"><i></i><i></i><i></i></span> <span id="stat" class="mu sm"></span>'; $('#chat').appendChild(t); } this.scroll(); },
+  status(txt) { const s = $('#stat'); if (s) s.textContent = short(txt, 70); },
+  /** Prints the already-verified answer smoothly; returns a handle used to attach the details after learning finishes. */
+  async say(text) {
+    const d = document.createElement('div'), t = document.createElement('div'); d.className = 'm a'; t.className = 't'; d.appendChild(t); $('#chat').appendChild(d); this.empty();
+    const parts = String(text).split(/(\s+)/), fast = matchMedia('(prefers-reduced-motion: reduce)').matches || document.hidden || parts.length > 240;
+    for (let i = 0; i < parts.length; i += 2) { t.textContent += parts[i] + (parts[i + 1] || ''); this.scroll(); if (!fast) await sleep(24); else if (i % 80 === 0) await sleep(0); }
+    HIST.push({ role: 'assistant', content: String(text) });
+    return { el: d, attach: html => { d.insertAdjacentHTML('beforeend', html); this.scroll(); } };
+  },
+  async maybeTitle(sid, q) { const s = SESSIONS.find(x => x.id === sid); if (s && s.title === 'محادثة جديدة') { s.title = short(q, 30); await IO('DB_PUT', { store: 'sessions', value: s }); this.renderSessions(); } },
+  renderSessions() { $('#sesList').innerHTML = [...SESSIONS].reverse().map(s => `<button class="ses-i ${s.id === S.sessionId ? 'on' : ''}" data-s="${s.id}">${esc(s.title)}</button>`).join(''); },
+  async loadChat() {
+    $('#chat').innerHTML = ''; HIST = [];
+    const rows = (await IO('DB_ALL', { store: 'raw_messages' })).filter(m => m.sessionId === S.sessionId && (m.role === 'user' || m.role === 'assistant')).sort((a, b) => a.ts - b.ts);
+    rows.forEach(m => { HIST.push({ role: m.role, content: m.text }); const d = document.createElement('div'), t = document.createElement('div'); if (m.role === 'user') { d.className = 'm u'; t.className = 'b'; } else { d.className = 'm a'; t.className = 't'; } t.textContent = m.text; d.appendChild(t); if (m.meta && m.meta.receipt) d.insertAdjacentHTML('beforeend', `<details class="why"><summary>كيف توصّلتُ إلى هذا؟</summary>${rcptHTML(m.meta.receipt)}</details>`); $('#chat').appendChild(d); });
+    this.empty(); this.scroll();
+  },
+  side(on) { $('#side').classList.toggle('open', on); $('#scrim').classList.toggle('on', on); },
+  open(id) { $('#ovl').hidden = false; $$('#ovl section').forEach(s => s.classList.toggle('on', s.id === id)); $('#ovlTitle').textContent = TITLES[id]; this.side(false); if (id === 't2') this.renderMemory(); if (id === 't4') this.renderRules(); if (id === 't6') { this.brainStatus(); FPS.paint(); } },
+  setMode(m) { S.mode = m; document.body.dataset.mode = m; $$('#modes button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); saveSetting('mode', m); this.banner(); },
+  async brainStatus() {
+    const b = await Providers.probeB(true), P = Providers.P;
+    $('#brainSt').innerHTML = esc(Providers.statusText()) + '<br>الجسر المحلي (B): ' + (b ? '<span class="ok">متاح</span>' : '<span class="mu">غير متاح</span>') + (PREVIEW ? '<br>Claude عبر المعاينة (D): ' + (!P.on ? '<span class="mu">متوقف</span>' : P.state === 'fail' ? '<span class="bad">تعذّر الوصول — ' + esc(short(P.err, 80)) + '</span>' : '<span class="wr">مفعّل — الإجابات تُختم [مصدر خارجي]</span>') : '');
+  },
+  /** Live progress of the brain download: bar + percentage + the engine's own words. Only touches the DOM nodes that already exist. */
+  progress(text, frac) {
+    if (typeof frac === 'number' && isFinite(frac)) Providers.prog = Math.max(Providers.prog || 0, Math.min(1, frac));
+    const pct = Math.round((Providers.prog || 0) * 100), bar = $('#bnBar'), n = $('#bnPct'), tx = $('#bnTxt'), st = $('#cA_st');
+    if (bar) bar.style.width = pct + '%'; if (n) n.textContent = pct + '%';
+    if (text) { if (tx) tx.textContent = short(text, 120); if (st) st.textContent = short(text, 120); }
+  },
+  /** The brain card above the input box. States: restricted page (disabled + message) · not downloaded · downloaded earlier · working · failed. */
+  async banner() {
+    const b = $('#banner'), P = Providers.P; if (Providers.initBusy || Providers.loading) return;
+    const cloud = async on => { P.on = on; P.state = 'idle'; P.err = ''; Providers.breakers.D = new CircuitBreaker(); await saveSetting('pcloud', on); this.banner(); };
+    if (!['AUTO', 'A'].includes(S.mode) || Providers.llm || (!ENV.restricted && await Providers.probeB())) { b.innerHTML = ''; return; }
+    const notice = () => { const bad = P.state === 'fail'; return `<div class="ban ${bad ? '' : 'ok'}">${bad ? '☁️ تعذّر الوصول إلى Claude من هذه البيئة، فأعمل بالنواة المحلية فقط.' : '☁️ وضع المعاينة: أصوغ الإجابات عبر Claude. يُرسَل سؤالك وسياق المحادثة وما يلزمه من ذاكرتك، وتُختم الإجابة [مصدر خارجي].'}<div class="row">${bad ? '<button class="btn" id="pcRetry">إعادة المحاولة</button>' : ''}<button class="btn ghost" id="pcOff">إيقاف السحابة</button></div></div>`; };
+    if (ENV.restricted) {
+      b.innerHTML = `<div class="brain off"><div class="b-row"><span class="b-ic">📱</span><div class="b-tx"><b>العقل التوليدي غير متاح هنا</b><div class="mu sm">${esc(RESTRICTED_MSG)}</div>${!ENV.framed && !PREVIEW ? '<div class="mu sm">المتصفح يمنع التخزين لهذه الصفحة. افتحها من شريط عنوان Chrome، أو عبر http://localhost (خادم Termux)، وليس من تطبيق الملفات.</div>' : ''}</div></div><div class="row"><button class="btn" id="bnLoad" disabled>تنزيل وتهيئة العقل</button></div></div>${PREVIEW && P.on ? notice() : ''}`;
+      if (PREVIEW && P.on) { $('#pcOff').onclick = () => cloud(false); if (P.state === 'fail') $('#pcRetry').onclick = () => cloud(true); }
+      else if (PREVIEW) b.insertAdjacentHTML('beforeend', '<div class="row"><button class="btn ghost" id="bnCloud">استخدام Claude هنا</button></div>'), $('#bnCloud').onclick = () => cloud(true);
+      return;
+    }
+    if (S.bannerOff && !Providers.err) { b.innerHTML = ''; return; }
+    const off = navigator.onLine === false, cached = !!Providers.meta, canGo = cached || !off;
+    const head = Providers.err ? ['⚠️', 'تعذّرت تهيئة العقل', esc(short(Providers.err, 220))] : cached ? ['🧠', 'العقل مخزّن على هاتفك', 'يُحمَّل من التخزين المحلي ولا يحتاج إنترنت.'] : ['🧠', 'العقل اللغوي غير مهيّأ', off ? 'لا اتصال: اتصل بالإنترنت مرة واحدة لتنزيله.' : 'يُنزَّل مرة واحدة (≈ ' + (Providers.cfg.A.size === 'small' ? '0.4' : '1') + ' جيجابايت، يُفضَّل Wi‑Fi) ثم يعمل دون إنترنت.'];
+    b.innerHTML = `<div class="brain ${Providers.err ? 'bad' : ''}"><div class="b-row"><span class="b-ic">${head[0]}</span><div class="b-tx"><b>${head[1]}</b><div class="mu sm">${head[2]}</div></div></div><div class="row"><button class="btn" id="bnLoad" ${canGo ? '' : 'disabled'}>${Providers.err ? 'إعادة المحاولة' : cached ? 'تشغيل العقل' : 'تنزيل وتهيئة العقل'}</button><button class="btn ghost" id="bnLater">لاحقًا</button></div></div>`;
+    $('#bnLoad').onclick = () => this.loadBrain(); $('#bnLater').onclick = () => { S.bannerOff = true; Providers.err = ''; b.innerHTML = ''; };
+  },
+  /** The only place that starts the download, and only from the user's tap. */
+  async loadBrain() {
+    if (ENV.restricted) { await this.banner(); return; }
+    if (Providers.llm || Providers.initBusy) return;
+    const b = $('#banner'); S.bannerOff = false; Providers.err = ''; S.consent = true; saveSetting('consent', true);
+    b.innerHTML = '<div class="brain"><div class="b-row"><span class="b-ic">⏳</span><div class="b-tx"><b>جارٍ تهيئة العقل… <span id="bnPct">0%</span></b><div class="mu sm" id="bnTxt">أبدأ…</div></div></div><div class="bar"><i id="bnBar"></i></div></div>';
+    try { const e = await navigator.storage.estimate(), free = (e.quota || 0) - (e.usage || 0), need = (Providers.cfg.A.size === 'small' ? 0.6 : 1.4) * 1073741824; if (e.quota && free < need) this.progress('تنبيه: المساحة الحرة للمتصفح ≈ ' + Math.round(free / 1048576) + 'MB وقد لا تكفي (يلزم ≈ ' + Math.round(need / 1048576) + 'MB). جرّب «خفيف» من الإعدادات إن تعذّر.'); } catch (e) { /* estimate unavailable */ }
+    try { const l = await Providers.loadBrain((m, f) => this.progress(m, f)); b.innerHTML = '<div class="brain ok"><div class="b-row"><span class="b-ic">✓</span><div class="b-tx"><b>العقل المحلي جاهز</b><div class="mu sm">' + esc(l.model) + '</div></div></div></div>'; setTimeout(() => { if (Providers.llm) b.innerHTML = ''; }, 3500); }
+    catch (e) { b.innerHTML = ''; await this.banner(); }
+    this.brainStatus();
+  },
+  /** What this browser can really do — the first thing to read if the brain refuses to start on the phone. */
+  async envReport() {
+    const out = [], ok = (n, v, d = '') => out.push((v ? '✓ ' : '✗ ') + n + (d ? ' — ' + d : ''));
+    ok('نوع الصفحة', true, location.protocol + (ENV.file ? ' (ملف محلي)' : '') + (location.hostname ? ' · ' + location.hostname : ''));
+    ok('سياق آمن', window.isSecureContext, window.isSecureContext ? '' : 'WebGPU والتخزين المتقدم يحتاجان https أو localhost أو ملفًا محليًا');
+    ok('الصفحة مفتوحة مباشرة (ليست داخل إطار)', !ENV.framed && !PREVIEW, ENV.framed || PREVIEW ? 'بيئة مقيّدة: لن يُهيَّأ العقل هنا' : '');
+    const g = await Providers.gpu(); ok('WebGPU', g.ok, g.ok ? (g.f16 ? 'shader-f16 متاح' : 'بلا shader-f16 فسأختار أوزان q4f32') + (g.maxBuf ? ' · أكبر مخزن ' + Math.round(g.maxBuf / 1048576) + 'MB' : '') : g.why);
+    let idb = true; try { await LibStore.open(); } catch (e) { idb = false; } ok('IndexedDB', idb);
+    ok('Cache Storage (مخزن أوزان WebLLM)', await cacheApiOK());
+    ok('OPFS', !!(navigator.storage && navigator.storage.getDirectory), 'اختياري');
+    try { const e = await navigator.storage.estimate(); ok('مساحة التخزين', true, Math.round(e.usage / 1048576) + 'MB مستخدمة من ' + Math.round(e.quota / 1048576) + 'MB'); } catch (e) { ok('مساحة التخزين', false, 'لا يمكن قياسها'); }
+    try { ok('تخزين دائم (لا يمسحه المتصفح تلقائيًا)', await navigator.storage.persisted()); } catch (e) { /* not supported */ }
+    ok('الخيوط', TH.kind !== 'main-thread', TH.describe());
+    ok('الاتصال', navigator.onLine, navigator.onLine ? 'متصل' : 'دون اتصال');
+    ok('العقل التوليدي', !!Providers.llm, Providers.statusText());
+    $('#envOut').textContent = out.join('\n');
+  },
+  async renderMemory() {
+    const docs = [...MEM.docs].sort((a, b) => b.timestamp - a.timestamp), K = { fact: 'حقيقة', note: 'ملاحظة', book: 'كتاب' };
+    $('#mCount').textContent = `(${MEM.active().length} نشطة من ${docs.length})`;
+    $('#mList').innerHTML = docs.length ? `<table class="tbl"><tr><th>النوع</th><th>النص</th><th>الحالة</th></tr>${docs.map(d => { const t = d.governance && d.governance.is_tombstone; return `<tr><td>${K[d.kind] || d.kind}<br><span class="mu sm">${esc(d.category)}</span></td><td><span class="${t ? 'tomb' : ''}">${esc(short(d.payload, 160))}</span>${d.title ? `<br><span class="mu sm code">${esc(short(d.title, 90))}</span>` : ''}<br><span class="mu sm code">${d.id.slice(-8)}</span></td><td>${t ? `<span class="bad">Tombstone</span><br><span class="mu sm">${esc(d.governance.reason || '')}</span><br><button class="btn ghost" data-restore="${d.id}">استعادة</button>` : `<span class="ok">نشطة</span><br><button class="btn ghost" data-forget="${d.id}">انسَ</button>`}</td></tr>`; }).join('')}</table>` : '<div class="mu">لا ذكريات بعد. تحدّث مع ADLI وسيتعلم، أو اضغط «بيانات تجريبية».</div>';
+    const raw = (await IO('DB_ALL', { store: 'raw_messages' })).sort((a, b) => b.ts - a.ts), bySrc = Object.fromEntries(MEM.docs.map(d => [d.source_msg_id, d]));
+    $('#logCount').textContent = `(${raw.length} سجلًا — لا يُحذف)`;
+    $('#logList').innerHTML = raw.length ? `<table class="tbl">${raw.slice(0, 60).map(m => { const d = bySrc[m.id], t = d && d.governance && d.governance.is_tombstone; return `<tr><td><span class="mu sm">${esc(m.role)}</span><br><span class="mu sm code">${m.id.slice(-6)}</span></td><td>${esc(short(m.text, 110))}<br><span class="mu sm">${new Date(m.ts).toLocaleString('ar')} · ${esc(String(m.sessionId || '').slice(-5))}</span></td><td>${t ? '<span class="bad">Tombstone</span>' : d ? '<span class="ok">مرتبط</span>' : ''}</td></tr>`; }).join('')}</table>` : '<div class="mu">السجل فارغ.</div>';
+  },
+  renderRules() { IO('DB_GET', { store: 'rules_vault', key: 'active' }).then(r => { const rules = r ? r.rules : DEFAULT_RULES; if (document.activeElement !== $('#rulesTxt')) $('#rulesTxt').value = JSON.stringify(rules, null, 1); $('#rulesInfo').textContent = `SHA-256: ${S.rulesHash}\nالحالة: ${S.rulesState}`; }); },
+  init() {
+    document.body.dataset.mode = S.mode; $$('#modes button').forEach(b => { b.classList.toggle('on', b.dataset.m === S.mode); b.onclick = () => this.setMode(b.dataset.m); });
+    on('#menuBtn', 'click', () => this.side(true)); on('#sideClose', 'click', () => this.side(false)); on('#scrim', 'click', () => this.side(false));
+    $$('.menu button').forEach(b => { b.onclick = () => this.open(b.dataset.go); }); on('#ovlBack', 'click', () => { $('#ovl').hidden = true; });
+    const fresh = () => { newSession(); this.side(false); }; on('#newBtn', 'click', fresh); on('#sideNew', 'click', fresh);
+    on('#sesList', 'click', async e => { const id = e.target.dataset.s; if (!id) return; S.sessionId = id; this.renderSessions(); await this.loadChat(); this.side(false); });
+    $('#sug').innerHTML = SUGGEST.map(t => `<button data-q="${esc(t)}">${esc(t)}</button>`).join(''); on('#sug', 'click', e => { if (e.target.dataset.q) { $('#q').value = e.target.dataset.q; $('#send').click(); } });
+    const q = $('#q'); q.addEventListener('input', () => { q.style.height = 'auto'; q.style.height = Math.min(q.scrollHeight, 140) + 'px'; });
+    on('#send', 'click', () => { const v = q.value; q.value = ''; q.style.height = 'auto'; askADLI(v); });
+    q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); $('#send').click(); } });
+    $('#webTog').checked = S.web; on('#webTog', 'change', e => { S.web = e.target.checked; saveSetting('web', S.web); });
+    $('#learnTog').checked = S.learn; on('#learnTog', 'change', e => { S.learn = e.target.checked; saveSetting('learn', S.learn); });
+    const C = Providers.cfg; $('#cA_engine').value = C.A.engine; $('#cA_size').value = C.A.size; $('#cA_model').value = C.A.model; $('#cA_lib').value = C.A.libUrl; $('#cB_url').value = C.B.url; $('#cB_style').value = C.B.style; $('#cB_model').value = C.B.model; $('#cD_url').value = C.D.url; $('#cD_model').value = C.D.model;
+    const sync = () => { const a = [C.A.engine, C.A.size, C.A.model, C.A.libUrl].join(); C.A.engine = $('#cA_engine').value; C.A.size = $('#cA_size').value; C.A.model = $('#cA_model').value.trim(); C.A.libUrl = $('#cA_lib').value.trim(); if (a !== [C.A.engine, C.A.size, C.A.model, C.A.libUrl].join()) Providers.llm = null; C.B.url = $('#cB_url').value.trim(); C.B.style = $('#cB_style').value; C.B.model = $('#cB_model').value.trim(); C.D.url = $('#cD_url').value.trim(); C.D.model = $('#cD_model').value.trim(); C.D.key = $('#cD_key').value.trim(); Providers.bAt = 0; persistCfg(); };
+    ['cA_engine', 'cA_size', 'cA_model', 'cA_lib', 'cB_url', 'cB_style', 'cB_model', 'cD_url', 'cD_model', 'cD_key'].forEach(i => $('#' + i).addEventListener('change', sync));
+    on('#brainLoad', 'click', () => { sync(); this.loadBrain(); }); on('#envRun', 'click', () => this.envReport()); if (ENV.restricted) $('#brainLoad').disabled = true;
+    on('#cA_opfs', 'click', async () => { try { await getModelFromOPFS($('#cA_url').value.trim(), $('#cA_name').value.trim() || 'model.bin', m => { $('#cA_files').textContent = m; }); $('#cA_files').textContent = (await listOPFS()).join('\n') || 'لا ملفات'; } catch (e) { $('#cA_files').textContent = '✗ ' + e.message + ' — يعمل OPFS في سياق آمن فقط (https أو localhost)'; } });
+    on('#cB_test', 'click', async () => { sync(); const ok = await Providers.probeB(true); $('#cB_st').textContent = ok ? '✓ متصل' : '✗ تعذّر الاتصال (تحقق من التشغيل والـ CORS)'; });
+    on('#mAdd', 'click', async () => { const text = $('#mText').value.trim(); if (!text) return; const r = await MEM.add({ kind: $('#mKind').value, category: $('#mCat').value.trim(), title: $('#mTitle').value.trim(), text, sessionId: S.sessionId }); $('#mText').value = ''; $('#mMsg').textContent = r.status === 'duplicate' ? 'موجودة مسبقًا (رُفع تكرارها)' : r.tombstoned.length ? `حُفظت — وُسمت ${r.tombstoned.length} ذكرى قديمة Tombstone (${r.tombstoned[0].why})` : 'حُفظت ✓'; this.renderMemory(); });
+    on('#mDemo', 'click', async () => { for (const t of DEMO) await MEM.add({ kind: 'fact', category: 'تجريبي', text: t, sessionId: S.sessionId }); this.renderMemory(); });
+    on('#mList', 'click', async e => { if (e.target.dataset.restore) { await MEM.restore(e.target.dataset.restore); this.renderMemory(); } if (e.target.dataset.forget) { await forgetMemory(e.target.dataset.forget); this.renderMemory(); } });
+    on('#lGo', 'click', () => { const qq = $('#lQ').value.trim(); if (!qq) return; $('#lOut').innerHTML = Retrieval.all(toYou(qq), MEM.active()).map((m, i) => `<div class="card"><b>${Retrieval.names[i]}</b> <span class="mu sm">${m.ms.toFixed(1)}ms</span>${m.r.slice(0, 3).map(x => `<div class="sm">• ${esc(short(x.d.payload, 70))} <span class="mu">(${x.s.toFixed(2)})</span></div>`).join('') || '<div class="sm bad">لا نتائج</div>'}</div>`).join(''); });
+    on('#lexAdd', 'click', async () => { const lines = $('#lexTxt').value.split('\n').map(s => s.trim()).filter(Boolean); for (const w of lines) { NLP.addGroup(w); await IO('DB_PUT', { store: 'lexicon', value: { id: uid('x'), words: w } }); } await COG('SET_LEXICON', { groups: lines }); const n = await MEM.reindex(); $('#lexMsg').textContent = `أُضيفت ${lines.length} مجموعة وأُعيد فهرسة ${n} ذكرى`; });
+    on('#wGo', 'click', async () => { const qq = $('#wQ').value.trim(); if (!qq) return; $('#wMsg').textContent = 'جارٍ البحث…'; try { const w = await Web.search(qq); S.last = w.sources; const dg = { answer: w.sources.map(s => `${s.snippet} [${s.sid}]`).join('\n') || ' ', kind: 'research', via: 'C', conf: 0.7 }, ok = trapReport(evalDraft(dg, { mems: [], sources: w.sources, sym: null })).list.find(x => x.code === 'TRAP-SOURCE').ok; $('#wMsg').textContent = w.status.join(' · ') + ' — مصيدة المصادر: ' + (ok ? 'اجتازت ✓' : 'فشلت ✗'); $('#wOut').innerHTML = w.sources.map((s, i) => `<div class="card"><b>[${s.sid}]</b> ${esc(s.origin)} — ${esc(s.title)}<div class="sm">${esc(s.snippet)}</div><a class="sm code" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a><div class="row"><button class="btn ghost" data-save="${i}">إضافة إلى الخزنة كملاحظة</button></div></div>`).join('') || '<div class="mu">لا نتائج.</div>'; } catch (e) { $('#wMsg').textContent = '✗ ' + e.message; } });
+    on('#wOut', 'click', async e => { const i = e.target.dataset.save; if (i === undefined) return; const s = S.last[i]; await MEM.add({ kind: 'note', category: 'ويب', title: s.title, text: `${s.snippet} (${s.origin}: ${s.url})`, sessionId: S.sessionId }); e.target.textContent = 'حُفظت ✓'; });
+    on('#rulesSave', 'click', async () => { try { const h = await applyRules($('#rulesTxt').value); $('#rulesInfo').textContent = `حُفظت ✓ SHA-256: ${h}`; } catch (e) { $('#rulesInfo').textContent = '✗ ' + e.message; } });
+    on('#rulesReset', 'click', async () => { $('#rulesTxt').value = JSON.stringify(DEFAULT_RULES, null, 1); $('#rulesSave').click(); });
+    on('#trapRun', 'click', () => { try { const j = JSON.parse($('#trapTxt').value), r = TRAP.evaluateDraft(j.draft || {}, j.meta || {}); $('#trapOut').textContent = (r.isPassed ? '✓ اجتازت كل المصائد' : '✗ ' + r.violations.length + ' مخالفة:\n' + r.violations.join('\n')); } catch (e) { $('#trapOut').textContent = '✗ JSON غير صالح: ' + e.message; } });
+    on('#kDerive', 'click', async () => { const p = $('#kPass').value; if (!p) return; const t0 = performance.now(); $('#kOut').textContent = 'جارٍ الاشتقاق (PBKDF2 · 600000 دورة)…'; await CRYPTO.deriveLocalMasterKey(p); $('#kPass').value = ''; $('#kOut').textContent = `المفتاح نشط وغير قابل للتصدير · ${Math.round(performance.now() - t0)}ms · ينتهي بعد 15 دقيقة من آخر استخدام`; });
+    on('#kEnc', 'click', async () => { try { const rows = (await IO('DB_ALL', { store: 'raw_messages' })).sort((a, b) => b.ts - a.ts).slice(0, 20); S.pack = await CRYPTO.encryptJSON(rows); S.packHash = await CRYPTO.computeSHA256(JSON.stringify(rows)); $('#kOut').textContent = `شُفّر ${rows.length} سجلًا · IV=${S.pack.iv}\nct=${S.pack.ct.slice(0, 64)}… (${S.pack.ct.length} حرف)\nSHA-256 للأصل=${S.packHash.slice(0, 16)}…`; } catch (e) { $('#kOut').textContent = '✗ ' + e.message; } });
+    on('#kDec', 'click', async () => { try { const back = await CRYPTO.decryptJSON(S.pack), h = await CRYPTO.computeSHA256(JSON.stringify(back)); $('#kOut').textContent = h === S.packHash ? `✓ فُكّ التشفير وتطابقت البصمة (${back.length} سجلًا)` : '✗ البصمة لا تطابق'; } catch (e) { $('#kOut').textContent = '✗ ' + e.message; } });
+    on('#kLock', 'click', () => { CRYPTO.sessionManager.clearKey(); $('#kOut').textContent = 'قُفلت الخزنة ومُسح المفتاح من الذاكرة.'; });
+    on('#purge', 'click', () => { const m = $('#modal'); m.hidden = false; m.innerHTML = '<div class="card" style="max-width:420px"><h3 class="bad">تدمير نووي محلي</h3><p class="sm">سيُمسح كل شيء: السجل الأصلي والذكريات والقواعد وملفات OPFS. اكتب كلمة «تدمير» للتأكيد.</p><input id="pgIn" placeholder="تدمير"><div class="row"><button class="btn bad" id="pgGo" disabled>نفّذ</button><button class="btn ghost" id="pgNo">إلغاء</button></div></div>'; $('#pgIn').oninput = e => { $('#pgGo').disabled = e.target.value.trim() !== 'تدمير'; }; $('#pgNo').onclick = () => { m.hidden = true; }; $('#pgGo').onclick = nuclearPurge; });
+    on('#bRun', 'click', async () => { $('#bRun').disabled = true; $('#bMsg').textContent = 'جارٍ التشغيل…'; await runBench(); $('#bRun').disabled = false; });
+    window.addEventListener('online', () => { updChips(); this.banner(); }); window.addEventListener('offline', updChips);
+    this.renderSessions(); this.loadChat(); updChips(); this.banner();
+  }
+};
+async function nuclearPurge() {
+  await IO('NUCLEAR_PURGE'); CRYPTO.sessionManager.clearKey();
+  try { const r = await navigator.storage.getDirectory(); for await (const [n] of r.entries()) await r.removeEntry(n, { recursive: true }); } catch (e) { /* OPFS may be unavailable */ }
+  location.reload();
+}
+
+/* ============ 15. SOVEREIGN BENCHMARK SUITE (one-button acceptance tests) ============ */
+const PAIRS = [['اشترى خالد سيارة جديدة من المعرض', 'من ابتاع مركبة؟'], ['وصف الطبيب دواءً للمريض', 'ماذا أعطى المعالج للعليل من عقار؟'], ['سافرت العائلة بالطائرة إلى جدة', 'هل رحلت الأسرة جوًا؟'], ['يدرس الطالب الرياضيات في الجامعة', 'أين يتعلم التلميذ الحساب؟'], ['ارتفعت أسعار الوقود هذا الشهر', 'هل غلا البنزين خلال الأسابيع؟'], ['يسكن خالد في منزل كبير قرب البحر', 'أين يقطن الرجل بيتًا واسعًا بجوار الشاطئ؟'], ['وظفت الشركة مهندسًا جديدًا', 'هل استقدمت المؤسسة فنيًا حديثًا؟'], ['أعلن الرئيس قرارًا جديدًا أمس', 'ماذا صرح الحاكم؟'], ['الطقس حار والأمطار قليلة', 'هل المناخ ساخن؟'], ['عقد المدير اجتماعًا مع الموظفين', 'هل اجتمع الرئيس بالعمال؟']];
+const DISTRACT = ['سجل الفريق ثلاثة أهداف في المباراة', 'زرع الفلاح أشجارًا في الحقل', 'الماء بارد في الشتاء', 'انتهت الحرب بين الدولتين بهدنة', 'تعلمت طفلتي أغنية جديدة', 'فتح المتجر أبوابه مساء'];
+const TESTS = [
+  ['المحرك الرمزي: حساب ومنطق (عبر الخيط المعرفي)', async () => {
+    const facts = ['أحمد أطول من علي', 'علي أطول من سعيد', 'كل طائر حيوان', 'كل حيوان كائن'];
+    const C = [['٣ + ٤ × ٢', '11'], ['12 ضرب 7 زائد 3', '87'], ['جذر 144', '12'], ['2^10', '1024'], ['كم ناتج 20% من 150؟', '30'], ['(8+2)*(3-1)/4', '5'], ['احسب 10 ناقص 4 ناقص 3', '3'], ['100 على 8', '12.5'], ['5/0', 'صفر'], ['هل 97 عدد أولي؟', 'نعم'], ['هل 91 عدد أولي؟', 'لا'], ['من الأطول؟', 'أحمد'], ['من الأقصر؟', 'سعيد'], ['هل أحمد أطول من سعيد؟', 'نعم'], ['هل كل طائر كائن؟', 'نعم'], ['أحمد أطول من علي وعلي أطول من سعيد، من الأطول؟', 'أحمد']];
+    let ok = 0; const bad = []; for (const [q, e] of C) { const r = await COG('SOLVE', { question: q, facts }); if (r && r.answer.includes(e)) ok++; else bad.push(q); }
+    let safe = 0; for (const q of ['alert(1)', 'constructor.constructor("x")()', 'process.exit()']) if (!(await COG('SOLVE', { question: q, facts: [] }))) safe++;
+    return { ok: ok === C.length && safe === 3, d: `${ok}/${C.length} حالة صحيحة · حقن شيفرة مرفوض ${safe}/3${bad.length ? ' · أخطأ: ' + bad.join(' | ') : ''}` };
+  }],
+  ['الاسترجاع الدلالي العربي: أسئلة بلا أي كلمة مشتركة', async () => {
+    const now = Date.now(), mk = t => prep({ payload: t, vector: NLP.embed(t), timestamp: now, last_accessed: now, access_count: 0 });
+    const docs = [...PAIRS.map(p => mk(p[0])), ...DISTRACT.map(mk)], hits = { exact: 0, overlap: 0, bm25: 0, root: 0, hybrid: 0 }; let shared = 0;
+    PAIRS.forEach((p, i) => {
+      const qs = new Set([...NLP.content(p[1]), ...NLP.stems(p[1])]); if ([...NLP.content(p[0]), ...NLP.stems(p[0])].some(w => qs.has(w))) shared++;
+      for (const k of Object.keys(hits)) { const r = Retrieval[k](p[1], docs).map(x => x.s); const top = Math.max(...r); if (top > 0 && r.indexOf(top) === i) hits[k]++; }
+    });
+    const n = PAIRS.length;
+    return { ok: shared === 0 && hits.bm25 === 0 && hits.hybrid >= 8 && hits.root >= 8, d: `${n} سؤالًا، كلمات مشتركة=${shared} · Hit@1 — تطابق ${hits.exact}/${n} · تقاطع ${hits.overlap}/${n} · BM25 ${hits.bm25}/${n} · جذر+مرادفات ${hits.root}/${n} · متجهي هجين ${hits.hybrid}/${n} · المرشحات ${docs.length}` };
+  }],
+  ['اصطياد الأخطاء في المصائد المعرفية', async () => {
+    const eng = new LogicTrapdoorEngine(DEFAULT_RULES), mk = (answer, x) => ({ answer, kind: 'memory', via: 'C', conf: 0.9, ...x }), mem = [{ d: { kind: 'fact', payload: 'أحمد يدخن' } }], src = [{ sid: 'SRC-1', url: 'https://a.org' }];
+    const ev = (d, c) => eng.evaluateDraft(draftObj(d, c), trapContext(d, c)), E = { mems: [], sources: [], sym: null };
+    const bad = [[ev(mk('الناتج: 88', { kind: 'math' }), { ...E, sym: { value: 87 } }), 'TRAP-NUMERIC'], [ev(mk('أحمد لا يدخن'), { ...E, mems: mem }), 'TRAP-CONTRADICTION'], [ev(mk('ذكر المصدر [SRC-9] ذلك الأمر'), { ...E, sources: src }), 'TRAP-SOURCE'], [ev(mk('انظر https://fake.example/x للتفاصيل'), { ...E, sources: src }), 'TRAP-SOURCE'], [ev(mk('  '), E), 'TRAP-QUALITY'], [ev(mk('جواب بحثي طويل بما يكفي', { kind: 'research' }), E), 'RULE-R2'], [ev(mk('جواب من السحابة بلا ختم', { via: 'D' }), E), 'RULE-R3']];
+    const good = [ev(mk('الناتج: 87', { kind: 'math' }), { ...E, sym: { value: 87 } }), ev(mk('بحسب خزنتك: أحمد يدخن'), { ...E, mems: mem }), ev(mk('شرح مع مصدر [SRC-1]', { kind: 'research' }), { ...E, sources: src })];
+    const caught = bad.filter(([r, c]) => r.violations.some(v => v.startsWith(c))).length, fp = good.filter(r => !r.isPassed).length;
+    return { ok: caught === bad.length && fp === 0, d: `اصطياد ${caught}/${bad.length} خطأ مزروعًا · إنذارات كاذبة ${fp}/${good.length}` };
+  }],
+  ['قاطع التيار وحلقة التصحيح الذاتي', async () => {
+    let t = 0; const br = new CircuitBreaker({ failureThreshold: 3, cooldownMs: 1000, now: () => t });
+    for (let i = 0; i < 3; i++) await br.exec(() => Promise.reject(new Error('x'))).catch(() => 0);
+    const opened = br.state === 'OPEN'; let fast = false; await br.exec(async () => 1).catch(e => { fast = e.message === 'CIRCUIT_OPEN'; });
+    t += 1001; const v = await br.exec(async () => 42), closed = br.state === 'CLOSED';
+    let repairs = 0; const stuck = await correctionLoop({ answer: 'x' }, () => ({ isPassed: false, violations: ['TRAP-NUMERIC'] }), async d => { repairs++; return d; });
+    return { ok: opened && fast && v === 42 && closed && stuck.tripped && repairs <= 3, d: `فُتح بعد 3 إخفاقات: ${opened} · رفض فوري: ${fast} · نصف مفتوح ثم أُغلق: ${closed} · حلقة عالقة توقفت بعد ${repairs} إصلاحات (الحد 3) وتفعّل القاطع: ${stuck.tripped}` };
+  }],
+  ['مسح المسودة فقط وحماية الذاكرة الدائمة', async () => {
+    const core = makeStoreCore('adli_bench_w' + Date.now()); await core.init(); const h = ioHandlers(core), cog = cognitiveHandlers({ nlp: NLP, sym: SYM, ioBridge: { send: (a, b) => Promise.resolve(h[a](b)) } }), P = ['raw_messages', 'episodes', 'approved_knowledge', 'rules_vault'];
+    for (const s of P) await core.add(s, { id: 'sentinel-' + s });
+    for (let i = 0; i < 40; i++) { await cog.PUSH_SCRATCH({ sessionId: 's', text: 'خطوة تفكير ' + i }); await core.put('scratchpad_store', { id: 'p' + i }); }
+    const b = { pool: (await cog.POOL_STATS()).checksum, sc: await core.count('scratchpad_store') }; await cog.FLUSH_SCRATCH(); await h.WIPE_DATABASE();
+    const a = { pool: (await cog.POOL_STATS()).checksum, sc: await core.count('scratchpad_store') }, perm = []; for (const s of P) perm.push(await core.count(s));
+    let imm = false; try { await core.put('raw_messages', { id: 'x' }); } catch (e) { imm = /IMMUTABLE/.test(e.message); } let dup = false; try { await core.add('raw_messages', { id: 'sentinel-raw_messages' }); } catch (e) { dup = true; }
+    await core.dropDatabase();
+    return { ok: b.pool > 0 && b.sc === 40 && a.pool === 0 && a.sc === 0 && perm.every(n => n === 1) && imm && dup, d: `مجموع RAM ${b.pool.toFixed(1)}→${a.pool} · جدول المسودة ${b.sc}→${a.sc} · الجداول الدائمة ${perm.join('/')} (المتوقع 1/1/1/1) · raw_messages يرفض التعديل: ${imm} والتكرار: ${dup}` };
+  }],
+  ['تفريغ الفائض (Spillover) وسقف الـRAM', async () => {
+    const core = makeStoreCore('adli_bench_s' + Date.now()); await core.init(); const h = ioHandlers(core), cog = cognitiveHandlers({ nlp: NLP, sym: SYM, ioBridge: { send: (a, b) => Promise.resolve(h[a](b)) } });
+    for (let i = 0; i < 4200; i++) await cog.PUSH_SCRATCH({ sessionId: 's', text: 'x' + i });
+    const st = await cog.POOL_STATS(), spills = (await core.all('scratchpad_store')).filter(r => r.spill).length; await cog.FLUSH_SCRATCH(); const z = await cog.POOL_STATS(); await core.dropDatabase();
+    return { ok: st.tokens <= 4096 && st.spilled >= 1 && spills >= 1 && z.checksum === 0, d: `4200 خطوة → في الـRAM ${st.tokens}/4096 · دفعات مُفرَّغة للقرص ${st.spilled} (سجلات ${spills}) · بعد المسح المجموع=${z.checksum}` };
+  }],
+  ['التشفير AES-GCM 256 وبصمة SHA-256', async () => {
+    const c = new ADLICryptoEngine(), t0 = performance.now(); await c.deriveLocalMasterKey('ADLI-bench-passphrase'); const kd = performance.now() - t0;
+    const rec = { a: 'سجل تجريبي', n: 42 }, pack = await c.encryptJSON(rec), back = await c.decryptJSON(pack), same = (await c.computeSHA256(JSON.stringify(rec))) === (await c.computeSHA256(JSON.stringify(back)));
+    const raw = unb64(pack.ct); raw[3] ^= 1; let tamper = false; try { await c.decryptJSON({ iv: pack.iv, ct: b64(raw) }); } catch (e) { tamper = true; }
+    const known = (await c.computeSHA256('abc')) === 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'; c.sessionManager.clearKey(); let locked = false; try { c.sessionManager.getKey(); } catch (e) { locked = true; }
+    return { ok: same && tamper && known && locked, d: `اشتقاق PBKDF2-SHA384×600000: ${Math.round(kd)}ms · تطابق بعد الفك: ${same} · كشف العبث: ${tamper} · متجه SHA-256 المعروف: ${known} · القفل: ${locked}` };
+  }],
+  ['بصمة القواعد SHA-256', async () => {
+    const a = await CRYPTO.computeSHA256(canonRules(DEFAULT_RULES)), b = await CRYPTO.computeSHA256(canonRules(DEFAULT_RULES)), m = JSON.parse(canonRules(DEFAULT_RULES)); m[0].constraint.max_allowed = 9; const c = await CRYPTO.computeSHA256(canonRules(m));
+    return { ok: a === b && a !== c && S.rulesState === 'verified', d: `ثبات البصمة: ${a === b} · حساسية للتعديل: ${a !== c} · حالة القواعد النشطة: ${S.rulesState} (${S.rulesHash.slice(0, 12)})` };
+  }],
+  ['فك الترميز: عقوبة التكرار + argmax', async () => {
+    const lg = [1, 5, 3, 5.5], p0 = applyRepetitionPenaltyAndArgmax(lg, [], 1.2), p1 = applyRepetitionPenaltyAndArgmax(lg, [3], 1.2);
+    return { ok: p0 === 3 && p1 === 1, d: `بلا عقوبة → الرمز ${p0} · مع عقوبة 1.2 على الرمز 3 → الرمز ${p1}` };
+  }],
+  ['الخزنة الفيزيائية OPFS', async () => {
+    if (!navigator.storage || !navigator.storage.getDirectory) return { skip: true, d: 'OPFS غير مدعوم في هذا المتصفح' };
+    const logs = []; let u; try { u = await getModelFromOPFS('data:text/plain;base64,aGVsbG8=', 'adli_bench.tmp', m => logs.push(m)); } catch (e) { return { skip: true, d: 'OPFS غير متاح في هذا السياق: ' + e.message }; }
+    const txt = await (await fetch(u)).text(); await getModelFromOPFS('unused', 'adli_bench.tmp', m => logs.push(m)); await (await navigator.storage.getDirectory()).removeEntry('adli_bench.tmp');
+    return { ok: txt === 'hello' && logs.length === 2 && /قراءة/.test(logs[1]), d: `كتابة ثم قراءة من القرص: "${txt}" · مسار التحميل ثم مسار الخزنة: ${logs.length}/2` };
+  }],
+  ['سلاسة الشاشة 60FPS تحت حمل الخيط المعرفي', async () => {
+    if (document.hidden) return { skip: true, d: 'الصفحة مخفية — لا يمكن القياس' };
+    const p = COG('EMBED_BATCH', { texts: Array.from({ length: 300 }, (_, i) => 'اختبار حمل رقم ' + i + ' سيارة طبيب مدرسة') }), s = await FPS.measure(1200); await p;
+    return { ok: s.avg >= 50, d: `(الحد 50) متوسط ${s.avg.toFixed(1)} FPS · الأدنى ${s.min.toFixed(1)} · إطارات متأخرة >25ms: ${s.drops} · الخيوط: ${TH.kind}` };
+  }]
+];
+async function runBench() {
+  const out = $('#bOut'), rows = []; let pass = 0, fail = 0, skip = 0;
+  for (const [name, fn] of TESTS) {
+    const t0 = performance.now(); let r; try { r = await fn(); } catch (e) { r = { ok: false, d: 'استثناء: ' + e.message }; }
+    if (r.skip) skip++; else if (r.ok) pass++; else fail++;
+    rows.push(`<tr><td>${esc(name)}</td><td class="${r.skip ? 'wr' : r.ok ? 'ok' : 'bad'}">${r.skip ? 'متخطى' : r.ok ? 'نجح' : 'فشل'}</td><td>${esc(r.d)}</td><td>${Math.round(performance.now() - t0)}ms</td></tr>`);
+    out.innerHTML = `<table class="tbl"><tr><th>الاختبار</th><th>النتيجة</th><th>التفصيل بالأرقام</th><th>الزمن</th></tr>${rows.join('')}</table>`; $('#bMsg').textContent = `${pass} نجح · ${fail} فشل · ${skip} متخطى من ${TESTS.length}`;
+  }
+  return { pass, fail, skip };
+}
+
+
+/* ============ 16. EXTRA ACCEPTANCE TEST + BOOT ============ */
+TESTS.push(['التعلّم من المحادثة: استخلاص الحقائق وصياغة المخاطب والتعارض', async () => {
+  const f = extractFacts('اسمي علي وأسكن في الرياض. ما عاصمة فرنسا؟ أحب القهوة. 2+2؟ هل أنت جاهز؟'), q = toYou('ما اسمي وأين أسكن؟');
+  const sv = ENGINE.detectContradiction('أنت تسكن في جدة', 'أنت تسكن في الرياض'), neg = ENGINE.detectContradiction('أنت لا تسكن في الرياض', 'أنت تسكن في الرياض'), same = ENGINE.detectContradiction('أنت تحب القهوة', 'أنت تحب الشاي');
+  const talk = !!smallTalk('السلام عليكم'), qOnly = extractFacts('ما عاصمة فرنسا؟ هل أنت جاهز؟').length;
+  return { ok: f.length === 3 && /اسمك علي/.test(f[0]) && /أنت تسكن في الرياض/.test(f[1]) && /تحب القهوة/.test(f[2]) && /اسمك/.test(q) && /تسكن/.test(q) && !!sv && !!neg && !same && talk && qOnly === 0, d: `حقائق مستخلصة ${f.length}/3: «${f.join('» «')}» · سؤال بصيغة المخاطب: «${q}» · خاصية وحيدة القيمة: ${!!sv} · نفي: ${!!neg} · خاصيتان متوافقتان لا تتعارضان: ${!same} · أسئلة لا تُحفظ: ${qOnly === 0}` };
+}]);
+TESTS.push(['تحميل مؤجل: لا تُجلب مكتبات المحرك قبل ضغط الزر', async () => {
+  if (Providers.llm || Providers.meta) return { skip: true, d: 'العقل مُهيّأ أو سبق تنزيله على هذا الجهاز' };
+  const hits = performance.getEntriesByType('resource').filter(r => /jsdelivr|esm\.run|esm\.sh|unpkg|huggingface/.test(r.name));
+  return { ok: hits.length === 0 && !Providers.loading && !Providers.llm, d: hits.length ? 'طلبات: ' + hits.map(h => h.name).join(' , ') : 'لا طلب واحد إلى شبكات التوزيع ولا عقل محمّل' };
+}]);
+TESTS.push(['محمّل المكتبات دون اتصال: إعادة بناء الوحدات من نسخ مخزّنة', async () => {
+  const base = 'https://example.invalid/npm/main/+esm', mem = new Map([[base, 'import { a } from "/npm/dep@1/+esm"; import b from"./leaf.js"; export const v = a + b + 1;'], ['https://example.invalid/npm/dep@1/+esm', 'export const a = 10;'], ['https://example.invalid/npm/main/leaf.js', 'export default 5;']]);
+  const store = Object.create(LibStore); store.get = async k => mem.get(k);
+  try { const m = await import(await store.bundle(base)); return { ok: m.v === 16, d: 'ناتج الوحدة المعاد بناؤها = ' + m.v + ' (المتوقع 16) دون أي طلب شبكة' }; } catch (e) { return { skip: true, d: 'هذه البيئة تمنع وحدات blob: ' + ((e && e.message) || e) }; }
+}]);
+(async function boot() {
+  try {
+    await TH.boot('adli_sovereign_v1');
+    const STORE_AR = { indexeddb: 'IndexedDB (دائم على الجهاز)', memory: 'ذاكرة مؤقتة (تزول عند إغلاق الصفحة)', 'artifact-storage': 'تخزين المعاينة (دائم)' }, dbm = await IO('DB_MODE');
+    $('#thInfo').textContent = `ADLI v0.7 · الخيوط: ${TH.describe()} · التخزين: ${STORE_AR[dbm] || dbm}${PREVIEW ? ' · بيئة المعاينة' : ''}`;
+    await loadSettings(); await Providers.loadPrefs(); await loadLexicon(); await loadRules(); await MEM.load(); await initSessions(); UI.init(); FPS.start();
+  } catch (e) { const d = document.createElement('div'); d.className = 'card bad'; d.textContent = 'خطأ في الإقلاع: ' + ((e && e.message) || e); document.body.prepend(d); console.error(e); }
+})();
+</script>
+</body>
+</html>
